@@ -1,48 +1,50 @@
 const mongoCollections = require('../config/mongoCollections');
-const posts = mongoCollections.blogs;
-// const users = require('./users');
+const blogsPosts = mongoCollections.blogs;
+const users = require('./users');
 const uuid = require('uuid');
 
 let exportedMethods = {
-	async getAllPosts() {
-		const postCollection = await posts();
-		return await postCollection.find({}).toArray();
+	async getAllBlogPosts() {
+		const blogPostCollection = await blogsPosts();
+		return await blogPostCollection.find({}).toArray();
 	},
-	async getPostById(id) {
-		const postCollection = await posts();
-		const post = await postCollection.findOne({ _id: id });
+	async getBlogPostById(id) {
+		const blogPostCollection = await blogsPosts();
+		const blogPost = await blogPostCollection.findOne({ _id: id });
 
-		if (!post) throw 'Post not found';
-		return post;
+		if (!blogPost) throw 'Blog post not found';
+		return blogPost;
 	},
-	/*
-	async addPost(title, body, posterId) {
-		const postCollection = await posts();
-		const userThatPosted = await users.getUserById(posterId);
+	async addBlogPost(title, body, userThatPosted) {
+		const blogPostCollection = await blogsPosts();
 
-		let newPost = {
+		/**
+		 * Get user from session here, use as userThatPosted && userThatPostedComment
+		 */
+
+		let newBlogPost = {
 			title: title,
 			body: body,
-			poster: {
-				id: posterId,
-				name: `${userThatPosted.firstName} ${userThatPosted.lastName}`,
-			},
-			_id: uuid.v4(),
+			userThatPosted: userThatPosted,
+			comments: [],
 		};
 
-		const newInsertInformation = await postCollection.insertOne(newPost);
+		const newInsertInformation = await blogPostCollection.insertOne(
+			newBlogPost,
+		);
 		if (newInsertInformation.insertedCount === 0) throw 'Insert failed!';
 
-		return this.getPostById(newInsertInformation.insertedId);
+		return this.getBlogPostById(newInsertInformation.insertedId);
 	},
-	async removePost(id) {
-		const postCollection = await posts();
-		const deletionInfo = await postCollection.deleteOne({ _id: id });
+	async removeBlogPost(id) {
+		const blogPostCollection = await blogPosts();
+		const deletionInfo = await blogPostCollection.deleteOne({ _id: id });
 		if (deletionInfo.deletedCount === 0)
-			throw `Could not delete post with id of ${id}`;
+			throw `Could not delete blog post with id of ${id}`;
 		return true;
 	},
-	async updatePost(id, title, body, posterId) {
+	/*
+	async updateBlogPost(id, title, body, posterId) {
 		const postCollection = await posts();
 		const userThatPosted = await users.getUserById(posterId);
 
@@ -62,7 +64,7 @@ let exportedMethods = {
 			throw 'Update failed';
 		return this.getPostById(id);
 	},
-    */
+	*/
 };
 
 module.exports = exportedMethods;
