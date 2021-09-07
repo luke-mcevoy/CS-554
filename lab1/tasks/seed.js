@@ -13,7 +13,7 @@ const main = async () => {
 	const alan = await users.addUser('alanTuring101');
 	const shaq = await users.addUser('orlandoSuperMan');
 
-	const registerdUsers = [luke, matt, waldo, alan, shaq];
+	const registerdUsers = [luke, waldo, alan, shaq];
 
 	seedBlogPostTitle = 'Lorem ipsum dolor sit amet';
 	seedBlogPostBody =

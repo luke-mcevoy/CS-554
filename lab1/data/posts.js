@@ -2,6 +2,7 @@ const mongoCollections = require('../config/mongoCollections');
 const blogsPosts = mongoCollections.blogs;
 const users = require('./users');
 const uuid = require('uuid');
+const { ObjectId } = require('bson');
 
 let exportedMethods = {
 	async getAllBlogPosts() {
@@ -9,8 +10,9 @@ let exportedMethods = {
 		return await blogPostCollection.find({}).toArray();
 	},
 	async getBlogPostById(id) {
+		console.log(id, typeof ObjectId(id));
 		const blogPostCollection = await blogsPosts();
-		const blogPost = await blogPostCollection.findOne({ _id: id });
+		const blogPost = await blogPostCollection.findOne({ _id: ObjectId(id) });
 
 		if (!blogPost) throw 'Blog post not found';
 		return blogPost;
@@ -34,11 +36,13 @@ let exportedMethods = {
 		);
 		if (newInsertInformation.insertedCount === 0) throw 'Insert failed!';
 
-		return this.getBlogPostById(newInsertInformation.insertedId);
+		return;
 	},
 	async removeBlogPost(id) {
 		const blogPostCollection = await blogPosts();
-		const deletionInfo = await blogPostCollection.deleteOne({ _id: id });
+		const deletionInfo = await blogPostCollection.deleteOne({
+			_id: ObjectId(id),
+		});
 		if (deletionInfo.deletedCount === 0)
 			throw `Could not delete blog post with id of ${id}`;
 		return true;
