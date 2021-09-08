@@ -8,10 +8,10 @@ const main = async () => {
 	const db = await dbConnection();
 	await db.dropDatabase();
 
-	const luke = await users.addUser('Luke_McEvoy');
-	const waldo = await users.addUser('wheresWaldo');
-	const alan = await users.addUser('alanTuring101');
-	const shaq = await users.addUser('orlandoSuperMan');
+	const luke = await users.addUser('Luke', 'Luke_McEvoy', 'password');
+	const waldo = await users.addUser('Waldo', 'wheresWaldo', 'password');
+	const alan = await users.addUser('Alan', 'alanTuring101', 'password');
+	const shaq = await users.addUser('Shaq', 'orlandoSuperMan', 'password');
 
 	const registerdUsers = [luke, waldo, alan, shaq];
 

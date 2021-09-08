@@ -1,12 +1,14 @@
 const mongoCollections = require('../config/mongoCollections');
 const users = mongoCollections.users;
 const uuid = require('uuid');
+const bcrypt = require('bcryptjs');
+const { ObjectID } = require('bson');
+const saltRounds = 2;
 
 let exportedMethods = {
 	async getAllUsers() {
 		const userCollection = await users();
-		const userList = await userCollection.find({}).toArray();
-		return userList;
+		return await userCollection.find({}).toArray();
 	},
 	async getUserById(id) {
 		const userCollection = await users();
@@ -14,17 +16,29 @@ let exportedMethods = {
 		if (!user) throw 'User not found';
 		return user;
 	},
-	async addUser(username) {
+	async addUser(name, username, password) {
 		const userCollection = await users();
 
+		try {
+			/**
+			 * 	Error checking
+			 */
+		} catch (e) {
+			throw e;
+		}
+
+		const hashedPassword = await bcrypt.hash(password, saltRounds);
+
 		let newUser = {
-			_id: uuid.v4(),
+			_id: new ObjectID(),
+			name: name,
 			username: username,
+			password: hashedPassword,
 		};
 
-		const newInsertInformation = await userCollection.insertOne(newUser);
-		if (newInsertInformation.insertedCount === 0) throw 'Insert failed!';
-		return await this.getUserById(newInsertInformation.insertedId);
+		const insertInfo = await userCollection.insertOne(newUser);
+		if (insertInfo.insertedCount === 0) throw 'Could not add user.';
+		return await this.getUserById(insertInfo.insertedId);
 	},
 };
 
