@@ -38,20 +38,20 @@ let exportedMethods = {
 
 		for (let i = 0; i < blogPost.comments.length; i++) {
 			if (blogPost.comments[i]._id.toString() == commentId.toString()) {
-				console.log('deleting this bithc ', blogPost.comments[i]);
 				editedBlogPost.comments.splice(i, 1);
 			}
 		}
 
 		console.log('After: ', editedBlogPost.comments.length);
 
-		console.log(editedBlogPost.comments);
-
-		const updateInfo = await blogPostCollection.update(
-			{ _id: blogPostId },
-			{ $set: { comments: editedBlogPost.comments } },
+		/**
+		 * 	idk why this isn't working
+		 */
+		const updateInfo = await blogPostCollection.updateOne(
+			{ _id: ObjectId(blogPost._id) },
+			{ $set: { comments: { _id: ObjectId(commentId) } } },
 		);
-		console.log('out of pull');
+		console.log('out of pull'); // Doesn't make it here
 		if (!updateInfo.matchedCount && !updateInfo.modifiedCount)
 			throw 'Update failed';
 		return true;

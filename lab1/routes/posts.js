@@ -13,7 +13,8 @@ router.get('/', async (req, res) => {
 	try {
 		const postList = await postData.getAllBlogPosts();
 
-		if (req.query) {
+		if (req.query && Object.keys(req.query).length != 0) {
+			console.log('There is a query ', req.query);
 			if (req.query.skip) {
 				let i;
 				try {
@@ -32,10 +33,11 @@ router.get('/', async (req, res) => {
 					res.json({ error: 'Skip query string was invalid' });
 				}
 
-				postList = postList.splice(i, postList.length - i);
+				postList.splice(i, postList.length - i);
 			}
 		} else {
-			postList = postList.splice(0, 20);
+			console.log('There is no query');
+			postList.splice(0, 20);
 		}
 		res.json(postList);
 	} catch (e) {
