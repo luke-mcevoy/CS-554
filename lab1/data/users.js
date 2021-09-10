@@ -20,9 +20,22 @@ let exportedMethods = {
 		const userCollection = await users();
 
 		try {
-			/**
-			 * 	Error checking
-			 */
+			if (!name) throw 'No name provided';
+			if (!username) throw 'No username provided';
+			if (!password) throw 'No password provided';
+
+			if (typeof name != 'string') throw 'name needs to be a valid string';
+			if (typeof username != 'string')
+				throw 'username needs to be a valid string';
+			if (typeof password != 'string')
+				throw 'password needs to be a valid string';
+
+			if (!name.replace(/\s/g, '').length)
+				throw 'name needs to be a valid string';
+			if (!username.replace(/\s/g, '').length)
+				throw 'username needs to be a valid string';
+			if (!password.replace(/\s/g, '').length)
+				throw 'password needs to be a valid string';
 		} catch (e) {
 			throw e;
 		}

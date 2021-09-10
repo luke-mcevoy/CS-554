@@ -20,19 +20,51 @@ let exportedMethods = {
 		const blogPost = await this.getBlogPostById(blogPostId);
 		if (!blogPost) throw 'Blog post not found';
 
-		// blogPost.comments.find({"comments"});
+		console.log('Entering loop');
+		for (currentComment of blogPost.comments) {
+			if (currentComment._id.toString() == commentId.toString()) {
+				return currentComment;
+			}
+		}
+		throw 'Comment not found';
+	},
+	async deleteCommentById(blogPostId, commentId) {
+		const blogPost = await this.getBlogPostById(blogPostId);
+		if (!blogPost) throw 'Blog post not found';
+
+		const editedBlogPost = blogPost;
+
+		console.log('Before: ', editedBlogPost.comments.length);
+
+		for (let i = 0; i < blogPost.comments.length; i++) {
+			if (blogPost.comments[i]._id.toString() == commentId.toString()) {
+				console.log('deleting this bithc ', blogPost.comments[i]);
+				editedBlogPost.comments.splice(i, 1);
+			}
+		}
+
+		console.log('After: ', editedBlogPost.comments.length);
+
+		console.log(editedBlogPost.comments);
+
+		const updateInfo = await blogPostCollection.update(
+			{ _id: blogPostId },
+			{ $set: { comments: editedBlogPost.comments } },
+		);
+		console.log('out of pull');
+		if (!updateInfo.matchedCount && !updateInfo.modifiedCount)
+			throw 'Update failed';
+		return true;
 	},
 	async addBlogPost(title, body, userThatPosted) {
 		const blogPostCollection = await blogPosts();
-
-		/**
-		 * Get user from session here, use as userThatPosted && userThatPostedComment
-		 */
-
 		let newBlogPost = {
 			title: title,
 			body: body,
-			userThatPosted: userThatPosted,
+			userThatPosted: {
+				_id: userThatPosted._id,
+				username: userThatPosted.username,
+			},
 			comments: [],
 		};
 
@@ -51,38 +83,64 @@ let exportedMethods = {
 			throw `Could not delete blog post with id of ${id}`;
 		return true;
 	},
-	async updateBlogPost(id, title, body, posterId = 0) {
+	async updateAllOfBlogPost(postId, newTitle, newBody) {
 		const blogPostCollection = await blogPosts();
-		// const userThatPosted = await users.getUserById(posterId);
 
-		let updatedPost = {
-			title: title,
-			body: body,
-			poster: {
-				id: posterId,
-				// name: userThatPosted.name,
-				name: 'dev',
-			},
-		};
 		const updateInfo = await blogPostCollection.updateOne(
-			{ _id: id },
-			{ $set: updatedPost },
+			{ _id: ObjectId(postId) },
+			{ $set: { title: newTitle, body: newBody } },
 		);
 		if (!updateInfo.matchedCount && !updateInfo.modifiedCount)
 			throw 'Update failed';
-		return this.getBlogPostById(id);
+		return this.getBlogPostById(postId);
 	},
-	async addCommentToBlogPost(blogPostId, comment) {
+	async updateSomeOfBlogPost(postId, newTitle, newBody) {
+		if (!newTitle && !newBody) {
+			return this.getBlogPostById(postId);
+		}
+
+		if (newTitle && newBody) {
+			throw 'Can not edit all fields in this method';
+		}
+
+		if (!newTitle && newBody) {
+			const blogPostCollection = await blogPosts();
+
+			const updateInfo = await blogPostCollection.updateOne(
+				{ _id: ObjectId(postId) },
+				{ $set: { body: newBody } },
+			);
+			if (!updateInfo.matchedCount && !updateInfo.modifiedCount)
+				throw 'Update failed';
+			return this.getBlogPostById(postId);
+		}
+
+		if (newTitle && !newBody) {
+			const blogPostCollection = await blogPosts();
+
+			const updateInfo = await blogPostCollection.updateOne(
+				{ _id: ObjectId(postId) },
+				{ $set: { title: newTitle } },
+			);
+			if (!updateInfo.matchedCount && !updateInfo.modifiedCount)
+				throw 'Update failed';
+			return this.getBlogPostById(postId);
+		}
+	},
+	async addCommentToBlogPost(blogPostId, user, comment) {
 		const blogPostCollection = await blogPosts();
-		const userThatPosted = {
-			_id: req.session._id,
-			username: req.session.username,
+
+		const commentObj = {
+			_id: new ObjectId(),
+			userThatPostedComment: { _id: user._id, username: user.username },
+			comment: comment,
 		};
+
 		const updateInfo = await blogPostCollection.updateOne(
 			{ _id: ObjectId(blogPostId) },
-			{ $userThatPostedComment: userThatPosted },
-			{ $set: { comments: comment.comments } },
+			{ $push: { comments: commentObj } },
 		);
+
 		if (!updateInfo.matchedCount && !updateInfo.modifiedCount)
 			throw 'Update failed';
 		return this.getBlogPostById(blogPostId);
