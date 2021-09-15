@@ -14,7 +14,7 @@ const sassFiles = [
 const vendorJsFiles = [
 	'./node_modules/jquery/dist/jquery.js',
 	'./node_modules/popper.js/dist/umd/popper.min.js',
-	'./node_modules/bootstrap/dist/js/bootstrap.js',
+	'./src/styles/bootstrap/dist/js/bootstrap.js',
 ];
 
 gulp.task('sass', function (done) {
@@ -23,12 +23,7 @@ gulp.task('sass', function (done) {
 		.pipe(gulpSASS())
 		.pipe(concatenate('styles.css'))
 		.pipe(gulp.dest('./public/css/'))
-		.pipe(
-			autoPrefix({
-				browsers: ['last 2 versions'],
-				cascade: false,
-			}),
-		)
+		.pipe(autoPrefix())
 		.pipe(cleanCSS())
 		.pipe(rename('styles.min.css'))
 		.pipe(gulp.dest('./public/css/'));
