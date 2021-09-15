@@ -22,7 +22,7 @@
 
 - Hypebeast Toothpaste
 
-  - ![Boxed Water](https://images.unsplash.com/photo-1610216690558-4aee861f4ab3?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=1400&q=80)
+  - ![Hypebeast Toothpaste](https://images.unsplash.com/photo-1610216690558-4aee861f4ab3?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=1400&q=80)
   - You're dripping between your shoes, shorts, and shirt, but the gingavitus would disagree! Fix this our Supreme solution! Your dentist will thank you!
 
 - Tequila Tuesday
