@@ -1,4 +1,4 @@
-# Products
+# Products Line
 
 - Trash
 
@@ -25,4 +25,26 @@
   - ![Boxed Water](https://images.unsplash.com/photo-1610216690558-4aee861f4ab3?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=1400&q=80)
   - You're dripping between your shoes, shorts, and shirt, but the gingavitus would disagree! Fix this our Supreme solution! Your dentist will thank you!
 
--
+- Tequila Tuesday
+
+  - ![Tequila Tuesday](https://images.unsplash.com/photo-1620165366526-8109c0343fc8?ixid=MnwxMjA3fDF8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=934&q=80)
+  - Get a shipment of Tequila every Tuesday because, why not!
+
+- Art piece
+
+  - ![Art piece](https://images.unsplash.com/photo-1631027238844-3a489e7abccb?ixid=MnwxMjA3fDB8MHx0b3BpYy1mZWVkfDM1fGJEbzQ4Y1Vod25ZfHxlbnwwfHx8fA%3D%3D&ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=60)
+  - Art piece from COVID about COVID
+
+- Transformer
+
+  - ![Transformer](https://images.unsplash.com/photo-1605559424843-9e4c228bf1c2?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&q=80)
+  - Don't let your eyes decieve you, this car can turn road rage into front page news!
+
+- Caffeine Funnel
+
+  - ![Caffeine Funnel](https://images.unsplash.com/photo-1621569642780-4864752e847e?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=934&q=80)
+  - Addicted to caffeine? No worries, me too! Look fancy feeding it!
+
+- Picture Book
+  - ![Picture Book](https://images.unsplash.com/photo-1467951591042-f388365db261?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=2000&q=80)
+  - Get the social clout of reading without the headache!
