@@ -1,5 +1,5 @@
-@import "variables";
-@import "./src/styles/bootstrap/scss/bootstrap";
+@import 'variables';
+@import './src/styles/bootstrap/scss/bootstrap';
 
 /* That imports the entirety of bootstrap, taken from ../../node_modules/bootstrap/scss/bootstrap.scss
  we can optimize it by only selectively including the modules we need:
@@ -56,7 +56,7 @@ body,
 html {
 	background: $body-background;
 	color: darken($brand-primary, 20%);
-	font-family: Georgia, Cambria, "Times New Roman", Times, serif;
+	font-family: Georgia, Cambria, 'Times New Roman', Times, serif;
 	font-size: $primary-font-size;
 	background-clip: border-box;
 }
@@ -73,7 +73,7 @@ section.#{$main-content-class} {
 		@if $main-content-class==book {
 			font-size: 12pt;
 		} @else {
-			font-size: $secondary-font-size+6pt;
+			font-size: $secondary-font-size + 6pt;
 		}
 		main & {
 			color: $patricks-green;
