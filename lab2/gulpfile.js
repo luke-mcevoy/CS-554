@@ -4,6 +4,7 @@ const cleanCSS = require('gulp-clean-css');
 const autoPrefix = require('gulp-autoprefixer');
 const gulpSASS = require('gulp-sass');
 const rename = require('gulp-rename');
+const imagemin = require('gulp-imagemin');
 
 const sassFiles = [
 	'./src/styles/variables.scss',
@@ -16,6 +17,11 @@ const vendorJsFiles = [
 	'./node_modules/popper.js/dist/umd/popper.min.js',
 	'./src/styles/bootstrap/dist/js/bootstrap.js',
 ];
+
+gulp.task('imagemin', function (done) {
+	gulp.src('public/img/*').pipe(imagemin()).pipe(gulp.dest('public/build/img'));
+	done();
+});
 
 gulp.task('sass', function (done) {
 	gulp
@@ -38,7 +44,7 @@ gulp.task('js:vendor', function (done) {
 	done();
 });
 
-gulp.task('build', gulp.parallel(['sass', 'js:vendor']));
+gulp.task('build', gulp.parallel(['sass', 'js:vendor', 'imagemin']));
 
 gulp.task('watch', function (done) {
 	gulp.watch(sassFiles, gulp.series('sass'));
