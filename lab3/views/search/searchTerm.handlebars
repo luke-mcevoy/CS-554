@@ -1,0 +1,17 @@
+<h1>Shows Found</h1>
+
+<main class="showList">
+    {{#if shows.length}}
+    <ul class="showListUl">
+        {{#each shows}}
+        <li>
+            <a href="/shows/{{id}}">{{name}}</a>
+        </li>
+        {{/each}}
+    </ul>
+    {{else}}
+    <p class="not-found">We're sorry, but no results were found for this.</p>
+    {{/if}}
+
+    <a class="anothaOne" href="/">Make another search</a>
+</main>

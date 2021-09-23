@@ -1,0 +1,27 @@
+<h1>Data Returned From Search</h1>
+<h2>{{searchTerm}}</h2>
+
+<main>
+    <div>
+        <h1>{{shows.name}}</h1>
+        <img alt={{shows.name}} src={{shows.image.medium}}>
+        <dl>
+            <dt>Language</dt>
+            <dd>{{shows.language}}</dd>
+            <dt>Genres</dt>
+            <dd>
+                <ul>
+                    {{#each shows.genres}}
+                    <li>{{this}}</li>
+                    {{/each}}
+                </ul>
+            </dd>
+            <dt>Average Rating</dt>
+            <dd>{{shows.rating.average}}</dd>
+            <dt>Network</dt>
+            <dd>{{shows.network.name}}</dd>
+            <dt>Summary</dt>
+            <dd>{{shows.summary}}</dd>
+        </dl>
+    </div>
+</main>

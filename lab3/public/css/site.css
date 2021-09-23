@@ -1,0 +1,81 @@
+html {
+	background-color: tan;
+}
+
+/* Root */
+h1 {
+	color: green;
+	text-align: center;
+}
+
+h2 {
+	color: magenta;
+	text-align: center;
+}
+
+/* Root */
+.rootMain {
+	color: navy;
+	font-weight: bold;
+	text-align: center;
+	padding-left: 20%;
+	padding-right: 20%;
+}
+
+/* Root */
+button {
+	color: green;
+}
+
+label {
+	color: black;
+	font-weight: bold;
+}
+
+/* Finder */
+.anothaOne {
+	text-align: center;
+	color: rebeccapurple;
+}
+
+/* Finder */
+.not-found {
+	color: red;
+}
+
+img {
+	display: block;
+	margin-left: auto;
+	margin-right: auto;
+	width: 40%;
+}
+
+p {
+	color: brown;
+	text-align: center;
+	padding-left: 20%;
+	padding-right: 20%;
+}
+
+.showListUl {
+	text-align: center;
+	list-style-position: outside;
+}
+
+dl,
+.showList {
+	padding-left: 35%;
+	padding-right: 35%;
+}
+
+dt {
+	color: blue;
+}
+
+dd {
+	color: cyan;
+}
+
+.error {
+	color: red;
+}
