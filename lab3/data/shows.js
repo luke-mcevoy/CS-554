@@ -9,6 +9,7 @@ const exportedMethods = {
 			let { data } = await axios.get(tvmazeBaseURL + '/shows');
 			return data;
 		} catch (e) {
+			console.log(e);
 			throw 'Error fetching show list data from API';
 		}
 	},
@@ -18,6 +19,7 @@ const exportedMethods = {
 			let { data } = await axios.get(tvmazeBaseURL + `/shows/${showId}`);
 			return data;
 		} catch (e) {
+			console.log(e);
 			throw 'Show not found with provided ID';
 		}
 	},
@@ -29,6 +31,7 @@ const exportedMethods = {
 			);
 			return data;
 		} catch (e) {
+			console.log(e);
 			throw 'Shows not found with search term';
 		}
 	},
@@ -36,6 +39,7 @@ const exportedMethods = {
 		try {
 			// Some shit with redis
 		} catch (e) {
+			console.log(e);
 			throw 'Failed to recevive populate searches';
 		}
 	},

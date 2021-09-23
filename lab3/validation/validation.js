@@ -1,5 +1,6 @@
 const exportedMethods = {
 	validShowId(showId) {
+		showId = parseInt(showId);
 		if (typeof showId != 'number') {
 			return false;
 		}
