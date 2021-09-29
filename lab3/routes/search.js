@@ -15,6 +15,7 @@ const validation = require('../validation/validation');
 router.get('/', async (req, res, next) => {
 	let cacheForHomePageExists = await client.getAsync('homePage');
 	if (cacheForHomePageExists) {
+		console.log('cache home page returned');
 		res.send(cacheForHomePageExists);
 	} else {
 		next();
@@ -24,6 +25,7 @@ router.get('/', async (req, res, next) => {
 // Axios
 router.get('/', async (req, res) => {
 	try {
+		console.log('axios home page returned');
 		let allShowsData = await showsData.getAllShows();
 		res.render('search/searchTerm', { shows: allShowsData });
 	} catch (e) {
@@ -43,6 +45,7 @@ router.get('/show/:id', async (req, res, next) => {
 	if (!validation.validShowId(showId)) throw 'Invalid Show ID';
 	let cacheForShowIdPageExists = await client.getAsync(`showIdPage_${showId}`);
 	if (cacheForShowIdPageExists) {
+		console.log(`cache show ${showId} page returned`);
 		res.send(cacheForShowIdPageExists);
 	} else {
 		next();
@@ -55,6 +58,7 @@ router.get('/show/:id', async (req, res, next) => {
 		let showId = req.params.id;
 		if (!validation.validShowId(showId)) throw 'Invalid Show ID';
 		let showData = await showsData.getShowById(showId);
+		console.log(`axios show ${showData.id} page returned`);
 		res.render('search/showLink', { show: showData });
 	} catch (e) {
 		console.log(e);
