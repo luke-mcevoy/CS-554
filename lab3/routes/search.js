@@ -93,6 +93,7 @@ router.get('/shows/:id', async (req, res, next) => {
 router.post('/search', async (req, res, next) => {
 	try {
 		let searchTerm = req.body.searchTerm;
+		console.log(`This is the searchTerm ${searchTerm}`);
 		if (!validation.validSearchTerm(searchTerm)) throw 'Invalid Search Term';
 		let cacheForSearchTermPageExists = await client.getAsync(
 			`searchTermPage_${searchTerm}`,
@@ -114,7 +115,20 @@ router.post('/search', async (req, res, next) => {
 		let searchTerm = req.body.searchTerm;
 		if (!validation.validSearchTerm(searchTerm)) throw 'Invalid Search Term';
 		let searchData = await showsData.getShowsBySearch(searchTerm);
-		res.render({ json: searchData });
+		console.log(`searchData is ${searchData}`);
+		res.render(
+			'search/searchTerm',
+			{ show: searchData },
+			async function (err, html) {
+				if (err) throw err;
+				let cacheShowPage = await client.setAsync(
+					`searchTerm_${searchTerm}`,
+					html,
+				);
+				if (!cacheShowPage) throw `Could not cache searchTerm ${searchTerm}`;
+				res.send(html);
+			},
+		);
 	} catch (e) {
 		console.log(e);
 		throw e;
