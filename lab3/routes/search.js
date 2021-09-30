@@ -30,7 +30,7 @@ router.get('/', async (req, res) => {
 		console.log('axios home page returned');
 		let allShowsData = await showsData.getAllShows();
 		res.render(
-			'search/searchTerm',
+			'search/homeDisplay',
 			{ shows: allShowsData },
 			async function (err, html) {
 				if (err) throw err;
@@ -117,10 +117,9 @@ router.post('/search', async (req, res, next) => {
 		let searchTerm = req.body.searchTerm;
 		if (!validation.validSearchTerm(searchTerm)) throw 'Invalid Search Term';
 		let searchData = await showsData.getShowsBySearch(searchTerm);
-		console.log(`searchData is ${searchData}`);
 		res.render(
 			'search/searchTerm',
-			{ show: searchData },
+			{ shows: searchData },
 			async function (err, html) {
 				if (err) throw err;
 				let cacheShowPage = await client.setAsync(
