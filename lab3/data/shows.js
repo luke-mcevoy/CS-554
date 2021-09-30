@@ -15,6 +15,7 @@ const exportedMethods = {
 	},
 	async getShowById(showId) {
 		try {
+			console.log(showId);
 			if (!validation.validShowId(showId)) throw 'Invalid Show ID';
 			let { data } = await axios.get(tvmazeBaseURL + `/shows/${showId}`);
 			return data;

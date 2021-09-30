@@ -13,7 +13,7 @@ const validation = require('../validation/validation');
 
 // Redis
 router.get('/', async (req, res, next) => {
-	let cacheForHomePageExists = await client.getAsync('homePage');
+	let cacheForHomePageExists = await client.getAsync('homepage');
 	if (cacheForHomePageExists) {
 		console.log('cache home page returned');
 		res.send(cacheForHomePageExists);
@@ -27,7 +27,16 @@ router.get('/', async (req, res) => {
 	try {
 		console.log('axios home page returned');
 		let allShowsData = await showsData.getAllShows();
-		res.render('search/searchTerm', { shows: allShowsData });
+		res.render(
+			'search/searchTerm',
+			{ shows: allShowsData },
+			async function (err, html) {
+				if (err) throw err;
+				let cacheHomePage = await client.setAsync('homepage', html);
+				if (!cacheHomePage) throw 'Could not cache homepage';
+				res.send(html);
+			},
+		);
 	} catch (e) {
 		console.log(e);
 		throw e;
@@ -40,10 +49,10 @@ router.get('/', async (req, res) => {
  */
 
 // Redis
-router.get('/show/:id', async (req, res, next) => {
+router.get('/shows/:id', async (req, res, next) => {
 	let showId = req.params.id;
 	if (!validation.validShowId(showId)) throw 'Invalid Show ID';
-	let cacheForShowIdPageExists = await client.getAsync(`showIdPage_${showId}`);
+	let cacheForShowIdPageExists = await client.getAsync(`show_${showId}`);
 	if (cacheForShowIdPageExists) {
 		console.log(`cache show ${showId} page returned`);
 		res.send(cacheForShowIdPageExists);
@@ -53,13 +62,22 @@ router.get('/show/:id', async (req, res, next) => {
 });
 
 // Axios
-router.get('/show/:id', async (req, res, next) => {
+router.get('/shows/:id', async (req, res, next) => {
 	try {
 		let showId = req.params.id;
 		if (!validation.validShowId(showId)) throw 'Invalid Show ID';
 		let showData = await showsData.getShowById(showId);
 		console.log(`axios show ${showData.id} page returned`);
-		res.render('search/showLink', { show: showData });
+		res.render(
+			'search/showLink',
+			{ show: showData },
+			async function (err, html) {
+				if (err) throw err;
+				let cacheShowPage = await client.setAsync(`show_${showId}`, html);
+				if (!cacheShowPage) throw `Could not cache show ${showId}`;
+				res.send(html);
+			},
+		);
 	} catch (e) {
 		console.log(e);
 		throw e;
