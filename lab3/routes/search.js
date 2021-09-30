@@ -5,6 +5,8 @@ const redis = require('redis');
 const client = redis.createClient();
 const validation = require('../validation/validation');
 
+client.flushall();
+
 /**
  * This route will show the list of shows. It will check the cache to see if
  * we have the show list homepage already cached. If the show list homepage is
