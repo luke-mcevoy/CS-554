@@ -4,7 +4,6 @@ const showsData = require('../data/shows');
 const redis = require('redis');
 const client = redis.createClient();
 const validation = require('../validation/validation');
-// var sortedSet = require('redis-sorted-set');
 
 client.flushall();
 
@@ -175,7 +174,6 @@ router.get('/popularSearches', async (req, res, next) => {
 		} else {
 			let searchTerm = setOfSearches[0];
 			let searchCount = setOfSearches[1];
-			console.log(searchTerm, searchCount);
 			res.render('search/popularSearch', {
 				searchTerm,
 				searchCount,
