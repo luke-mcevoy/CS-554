@@ -4,6 +4,7 @@ const showsData = require('../data/shows');
 const redis = require('redis');
 const client = redis.createClient();
 const validation = require('../validation/validation');
+// var sortedSet = require('redis-sorted-set');
 
 client.flushall();
 
@@ -96,6 +97,27 @@ router.post('/search', async (req, res, next) => {
 	try {
 		let searchTerm = req.body.searchTerm;
 		console.log(`This is the searchTerm ${searchTerm}`);
+
+		let setOfSearches = await client.zrangeAsync('scoreboard', 0, 10000);
+		if (setOfSearches.includes(searchTerm)) {
+			// searchTerm already exists, we need to increment it
+			let incrementSearchInScoreboard = await client.zincrbyAsync(
+				'scoreboard',
+				1,
+				searchTerm,
+			);
+			if (!incrementSearchInScoreboard)
+				throw `Could not incremement ${searchTerm} on scoreboard`;
+		} else {
+			let addSeachToScoreboard = await client.zaddAsync(
+				'scoreboard',
+				1,
+				searchTerm,
+			);
+			if (!addSeachToScoreboard)
+				throw `Could not add ${searchTerm} to scoreboard`;
+		}
+
 		if (!validation.validSearchTerm(searchTerm)) throw 'Invalid Search Term';
 		let cacheForSearchTermPageExists = await client.getAsync(
 			`searchTermPage_${searchTerm}`,
@@ -117,6 +139,7 @@ router.post('/search', async (req, res, next) => {
 		let searchTerm = req.body.searchTerm;
 		if (!validation.validSearchTerm(searchTerm)) throw 'Invalid Search Term';
 		let searchData = await showsData.getShowsBySearch(searchTerm);
+
 		res.render(
 			'search/searchTerm',
 			{ shows: searchData },
@@ -139,20 +162,26 @@ router.post('/search', async (req, res, next) => {
 /**
  * This route will display the top 10 search terms that are stored in our sorted set.
  */
-
-// Redis
 router.get('/popularSearches', async (req, res, next) => {
 	try {
-		// Redis cache page, are they unique?
-	} catch (e) {
-		console.log(e);
-		throw e;
-	}
-});
-
-// Axios
-router.get('/popularSearches', async (req, res, next) => {
-	try {
+		let setOfSearches = await client.zrevrangeAsync(
+			'scoreboard',
+			0,
+			10,
+			'WITHSCORES',
+		);
+		if (!setOfSearches) {
+			// There were no searches to be popular
+		} else {
+			let searchTerm = setOfSearches[0];
+			let searchCount = setOfSearches[1];
+			console.log(searchTerm, searchCount);
+			res.render('search/popularSearch', {
+				searchTerm,
+				searchCount,
+			});
+		}
+		console.log(setOfSearches);
 	} catch (e) {
 		console.log(e);
 		throw e;

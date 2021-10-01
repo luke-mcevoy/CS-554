@@ -16,6 +16,7 @@
     "flat": "^2.0.1",
     "handlebars": "^4.7.7",
     "node-redis": "^0.1.7",
-    "redis": "^3.0.2"
+    "redis": "^3.0.2",
+    "redis-sorted-set": "^2.0.0"
   }
 }
