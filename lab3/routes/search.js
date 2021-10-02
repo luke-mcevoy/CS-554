@@ -96,6 +96,10 @@ router.post('/search', async (req, res, next) => {
 	try {
 		let searchTerm = req.body.searchTerm;
 		console.log(`This is the searchTerm ${searchTerm}`);
+		if (!validation.validSearchTerm(searchTerm)) {
+			res.render('error/invalidInput');
+			throw 'Invalid Search Term';
+		}
 
 		let setOfSearches = await client.zrangeAsync('scoreboard', 0, 10000);
 		if (setOfSearches.includes(searchTerm)) {
@@ -136,7 +140,10 @@ router.post('/search', async (req, res, next) => {
 router.post('/search', async (req, res, next) => {
 	try {
 		let searchTerm = req.body.searchTerm;
-		if (!validation.validSearchTerm(searchTerm)) throw 'Invalid Search Term';
+		if (!validation.validSearchTerm(searchTerm)) {
+			res.render('error/invalidInput');
+			throw 'Invalid Search Term';
+		}
 		let searchData = await showsData.getShowsBySearch(searchTerm);
 
 		res.render(
