@@ -1,6 +1,16 @@
 
-<main>
-    <div>
-        <h1>{{searchTerm}} {{searchCount}}</h1>
-    </div>
+<main class="showList">
+    {{#if searches.length}}
+    <ul class="showListUl">
+        {{#each searches}}
+        <li>
+            <b>{{searchTerm}}</b> has been searched <b>{{searchCount}}</b> times!
+        </li>
+        {{/each}}
+    </ul>
+    {{else}}
+    <p class="not-found">We're sorry, but there are no popular searches to provide. Make a search and we can give you more info!</p>
+    {{/if}}
+
+    <a class="anothaOne" href="/">Make another search</a>
 </main>

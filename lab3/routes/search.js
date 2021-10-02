@@ -171,15 +171,25 @@ router.get('/popularSearches', async (req, res, next) => {
 		);
 		if (!setOfSearches) {
 			// There were no searches to be popular
+			res.render('search/popularSearch');
 		} else {
-			let searchTerm = setOfSearches[0];
-			let searchCount = setOfSearches[1];
+			setSearchArray = [];
+			let arrayIdx = 0;
+			if (setOfSearches.length > 20) {
+				setOfSearches.length = 20;
+			}
+			for (i = 0; i < setOfSearches.length; i += 2) {
+				let searchObj = {};
+				let searchTerm = setOfSearches[i];
+				let searchCount = setOfSearches[i + 1];
+				searchObj['searchTerm'] = searchTerm;
+				searchObj['searchCount'] = searchCount;
+				setSearchArray[arrayIdx++] = searchObj;
+			}
 			res.render('search/popularSearch', {
-				searchTerm,
-				searchCount,
+				searches: setSearchArray,
 			});
 		}
-		console.log(setOfSearches);
 	} catch (e) {
 		console.log(e);
 		throw e;
