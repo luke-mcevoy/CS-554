@@ -29,6 +29,7 @@ router.get('/', async (req, res) => {
 	try {
 		console.log('axios home page returned');
 		let allShowsData = await showsData.getAllShows();
+		if (!allShowsData) res.sendStatus(404);
 		res.render(
 			'search/homeDisplay',
 			{ shows: allShowsData },
@@ -69,6 +70,7 @@ router.get('/shows/:id', async (req, res, next) => {
 		let showId = req.params.id;
 		if (!validation.validShowId(showId)) throw 'Invalid Show ID';
 		let showData = await showsData.getShowById(showId);
+		if (!showData) res.sendStatus(404);
 		console.log(`axios show ${showData.id} page returned`);
 		res.render(
 			'search/showLink',
