@@ -1,0 +1,119 @@
+@import 'variables';
+@import './src/styles/bootstrap/scss/bootstrap';
+
+/* That imports the entirety of bootstrap, taken from ../../node_modules/bootstrap/scss/bootstrap.scss
+ we can optimize it by only selectively including the modules we need:
+*/
+
+/* 
+ @import "functions";
+ @import "variables";
+ @import "mixins";
+ @import "root";
+ @import "reboot";
+ @import "type";
+ @import "images";
+ @import "code";
+ @import "grid";
+ @import "tables";
+ @import "forms";
+ @import "buttons";
+ @import "transitions";
+ @import "dropdown";
+ @import "button-group";
+ @import "input-group";
+ @import "custom-forms";
+ @import "nav";
+ @import "navbar";
+ @import "card";
+ @import "breadcrumb";
+ @import "pagination";
+ @import "badge";
+ @import "jumbotron";
+ @import "alert";
+ @import "progress";
+ @import "media";
+ @import "list-group";
+ @import "close";
+ @import "modal";
+ @import "tooltip";
+ @import "popover";
+ @import "carousel";
+ @import "utilities";
+ @import "print";
+
+ */
+
+.btn {
+	background-color: #030e04; /* Green */
+	color: white;
+}
+
+@mixin border-bottom($size) {
+	border-bottom: $size solid #000;
+}
+
+* {
+	box-sizing: border-box;
+}
+
+body,
+html {
+	margin-left: 100px;
+	padding-bottom: 50px;
+	background: $body-background;
+	color: darken($brand-primary, 20%);
+	font-family: Georgia, Cambria, 'Times New Roman', Times, serif;
+	font-size: $primary-font-size;
+	background-clip: border-box;
+}
+
+p {
+	font-size: $secondary-font-size;
+}
+
+section.#{$main-content-class} {
+	h2 {
+		@include border-bottom(2px);
+	}
+	p {
+		@if $main-content-class==book {
+			font-size: 12pt;
+		} @else {
+			font-size: $secondary-font-size + 6pt;
+		}
+		main & {
+			color: $patricks-green;
+		}
+		span {
+			font-style: italic;
+		}
+	}
+}
+
+/* The sidebar menu */
+.sidenav {
+	height: 100%; /* Full-height: remove this if you want "auto" height */
+	width: 160px; /* Set the width of the sidebar */
+	position: fixed; /* Fixed Sidebar (stay in place on scroll) */
+	z-index: 1; /* Stay on top */
+	top: 0; /* Stay at the top */
+	left: 0;
+	background-color: #111; /* Black */
+	overflow-x: hidden; /* Disable horizontal scroll */
+	padding-top: 20px;
+}
+
+/* The navigation menu links */
+.sidenav a {
+	padding: 6px 8px 6px 16px;
+	text-decoration: none;
+	font-size: 25px;
+	color: #818181;
+	display: block;
+}
+
+/* When you mouse over the navigation links, change their color */
+.sidenav a:hover {
+	color: #f1f1f1;
+}
