@@ -7,7 +7,7 @@ import Series from './Series';
 import Landing from './Landing';
 import Navigation from './Navigation';
 
-function App() {
+const App = () => {
 	return (
 		<Router>
 			<div className="App">
@@ -28,6 +28,6 @@ function App() {
 			<Route exact path="/series/:id" component={Series} /> */}
 		</Router>
 	);
-}
+};
 
 export default App;
