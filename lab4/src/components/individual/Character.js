@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import URLGenerator from '../URLGenerator';
+import noImage from '../../img/download.jpeg';
 import axios from 'axios';
 import {
 	makeStyles,
@@ -75,13 +76,6 @@ const Character = (props) => {
 		description = 'No description';
 	}
 
-	let name = null;
-	if (characterState.character && characterState.character.name) {
-		name = characterState.character && characterState.character.name;
-	} else {
-		name = 'No name';
-	}
-
 	if (characterState.loading) {
 		return (
 			<div>
@@ -90,11 +84,43 @@ const Character = (props) => {
 		);
 	} else {
 		return (
-			<div>
-				<h1>
-					Card will go here for {name} and {description}
-				</h1>
-			</div>
+			<Card className={classes.card} variant="outlined">
+				<CardHeader
+					className={classes.titleHead}
+					title={characterState.character.name}
+				/>
+				<CardMedia
+					className={classes.media}
+					component="img"
+					image={
+						characterState.character.thumbnail &&
+						characterState.character.thumbnail.path &&
+						characterState.character.thumbnail.extension
+							? `${characterState.character.thumbnail.path}/standard_xlarge.${characterState.character.thumbnail.extension}`
+							: noImage
+					}
+					title="show image"
+				/>
+
+				<CardContent>
+					<Typography
+						variant="body2"
+						color="textSecondary"
+						components="span"
+					></Typography>
+					<dl>
+						<p>
+							<dt className="title">
+								{characterState.character && characterState.character.id ? (
+									<dd>{characterState.character.id}</dd>
+								) : (
+									<dd>N/A</dd>
+								)}
+							</dt>
+						</p>
+					</dl>
+				</CardContent>
+			</Card>
 		);
 	}
 };

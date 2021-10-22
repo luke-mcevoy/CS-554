@@ -1,4 +1,4 @@
-import React, { useState, setState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import noImage from '../../img/download.jpeg';
 import ReactPaginate from 'react-paginate';
@@ -80,7 +80,6 @@ const CharacterList = (props) => {
 		fetchData();
 	}, []);
 
-	// This fails with 401
 	useEffect(() => {
 		async function fetchData() {
 			try {
@@ -96,10 +95,13 @@ const CharacterList = (props) => {
 				const baseUrl =
 					'https://gateway.marvel.com:443/v1/public/characters?limit=10&offset=20';
 				const url =
-					baseUrl + '?ts=' + ts + '&apikey=' + publickey + '&hash=' + hash;
+					baseUrl + '&ts=' + ts + '&apikey=' + publickey + '&hash=' + hash;
 				console.log('Current Characters Page URL: ', url);
-				const { data: characters } = await axios.get(url);
-				setCharactersState({ data: characters.data.results, loading: false });
+				const { data } = await axios.get(url);
+				setCharactersState({
+					characters: data.data.results,
+					loading: false,
+				});
 			} catch (e) {
 				console.log(e);
 			}
