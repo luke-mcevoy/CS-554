@@ -111,10 +111,41 @@ const Character = (props) => {
 					<dl>
 						<p>
 							<dt className="title">
-								{characterState.character && characterState.character.id ? (
-									<dd>{characterState.character.id}</dd>
+								{characterState.character &&
+								characterState.character.description ? (
+									<dd>Description: {characterState.character.description}</dd>
 								) : (
-									<dd>N/A</dd>
+									<dd>Description: N/A</dd>
+								)}
+							</dt>
+							<dt className="title">
+								{characterState.character &&
+								characterState.character.comics.available ? (
+									<dd>
+										Comic Features: {characterState.character.comics.available}
+									</dd>
+								) : (
+									<dd>Comic Features: 0</dd>
+								)}
+							</dt>
+							<dt className="title">
+								{characterState.character &&
+								characterState.character.events.available ? (
+									<dd>
+										Event Features: {characterState.character.events.available}
+									</dd>
+								) : (
+									<dd>Event Features: 0</dd>
+								)}
+							</dt>
+							<dt className="title">
+								{characterState.character &&
+								characterState.character.series.available ? (
+									<dd>
+										Series Features: {characterState.character.series.available}
+									</dd>
+								) : (
+									<dd>Series Features: 0</dd>
 								)}
 							</dt>
 						</p>

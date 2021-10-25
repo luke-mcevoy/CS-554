@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import noImage from '../../img/download.jpeg';
-import ReactPaginate from 'react-paginate';
+import SearchCharacters from '../search/SearchCharacters';
 import axios from 'axios';
 import {
 	Card,
@@ -45,25 +45,83 @@ const useStyles = makeStyles({
 });
 
 const CharacterList = (props) => {
+	if (!props.match.params.pagenum) {
+		props.match.params.pagenum = 0;
+	}
+
 	const characterListURL =
 		'https://gateway.marvel.com:443/v1/public/characters';
 	const regex = /(<([^>]+)>)/gi;
+
 	const [charactersState, setCharactersState] = useState({
 		characters: undefined,
 		loading: true,
 	});
+	const [characterSearchTerm, setCharacterSearchTerm] = useState('');
+	const [pagenum, setPagenum] = useState(0);
 
-	if (!props.match.params.page) {
-		props.match.params.page = 0;
-		console.log('Page num is', props.match.params.page);
-	} else {
-		console.log('Page num is', props.match.params.page);
-	}
-
-	const [pageNum, setPageNum] = useState(props.match.params.page);
+	const previousButton = () => {
+		if (pagenum !== 0) {
+			let url = `/characters/page/${pagenum - 1}`;
+			return (
+				<Link
+					className={classes.button}
+					to={url}
+					onClick={() => {
+						setCharactersState({
+							loading: true,
+						});
+					}}
+				>
+					<Button variant="contained">Previous</Button>
+				</Link>
+			);
+		}
+	};
 
 	const classes = useStyles();
 	let card = null;
+
+	useEffect(() => {
+		async function fetchData() {
+			try {
+				const limit = 20;
+				const offset = limit * parseInt(props.match.params.pagenum) + 1;
+				// https://gateway.marvel.com:443/v1/public/characters?limit=10&offset=20&apikey=
+				const md5 = require('blueimp-md5');
+				const publickey = '3c595077cf2e884efee1655fdbbd3e56';
+				const privatekey = 'f030b6590489ed73c2de64024dec779077d67597';
+				const ts = new Date().getTime();
+				const stringToHash = ts + privatekey + publickey;
+				const hash = md5(stringToHash);
+				const baseUrl =
+					// 'https://gateway.marvel.com:443/v1/public/characters?limit=10&offset=20';
+					'https://gateway.marvel.com:443/v1/public/characters';
+				const url =
+					baseUrl +
+					'?limit=' +
+					limit +
+					'&offset=' +
+					offset +
+					'&ts=' +
+					ts +
+					'&apikey=' +
+					publickey +
+					'&hash=' +
+					hash;
+				console.log('Current Characters Page URL: ', url);
+				const { data } = await axios.get(url);
+				setPagenum(parseInt(props.match.params.pagenum));
+				setCharactersState({
+					characters: data.data.results,
+					loading: false,
+				});
+			} catch (e) {
+				console.log(e);
+			}
+		}
+		fetchData();
+	}, [props.match.params.pagenum]);
 
 	useEffect(() => {
 		async function fetchData() {
@@ -83,9 +141,6 @@ const CharacterList = (props) => {
 	useEffect(() => {
 		async function fetchData() {
 			try {
-				const limit = 20;
-				const offset = 100;
-				// https://gateway.marvel.com:443/v1/public/characters?limit=10&offset=20&apikey=
 				const md5 = require('blueimp-md5');
 				const publickey = '3c595077cf2e884efee1655fdbbd3e56';
 				const privatekey = 'f030b6590489ed73c2de64024dec779077d67597';
@@ -93,21 +148,30 @@ const CharacterList = (props) => {
 				const stringToHash = ts + privatekey + publickey;
 				const hash = md5(stringToHash);
 				const baseUrl =
-					'https://gateway.marvel.com:443/v1/public/characters?limit=10&offset=20';
+					'https://gateway.marvel.com:443/v1/public/characters?nameStartsWith=' +
+					characterSearchTerm;
 				const url =
 					baseUrl + '&ts=' + ts + '&apikey=' + publickey + '&hash=' + hash;
-				console.log('Current Characters Page URL: ', url);
+				console.log('url for searchTerm of the character list is ', url);
 				const { data } = await axios.get(url);
-				setCharactersState({
-					characters: data.data.results,
-					loading: false,
-				});
+				console.log(
+					'characters data from searchTerm fetch:',
+					data.data.results,
+				);
+				setCharactersState({ characters: data.data.results, loading: false });
 			} catch (e) {
 				console.log(e);
 			}
 		}
-		fetchData();
-	}, [pageNum, props.match.params.page]);
+		if (characterSearchTerm) {
+			fetchData();
+		}
+	}, [characterSearchTerm]);
+
+	// const searchValue = async (value) => {
+	// 	console.log('searchValue is', value);
+	// 	setCharacterSearchTerm(value);
+	// };
 
 	const buildCard = (character) => {
 		return (
@@ -143,6 +207,21 @@ const CharacterList = (props) => {
 												.substring(0, 139) + '...'
 										: 'No description'}
 								</Typography>
+								<Typography variant="body2" color="textSecondary" component="p">
+									{character.comics.available
+										? 'Comics avaliable: ' + character.comics.available
+										: 'No Comics'}
+								</Typography>
+								<Typography variant="body2" color="textSecondary" component="p">
+									{character.events.available
+										? 'Events avaliable: ' + character.events.available
+										: 'No Events'}
+								</Typography>
+								<Typography variant="body2" color="textSecondary" component="p">
+									{character.series.available
+										? 'Series avaliable: ' + character.series.available
+										: 'No Events'}
+								</Typography>
 							</CardContent>
 						</Link>
 					</CardActionArea>
@@ -157,20 +236,6 @@ const CharacterList = (props) => {
 			return buildCard(character);
 		});
 
-	const pageIncrease = () => {
-		console.log('pageIncrease fired');
-		console.log('pageIncrease pageNume before: ', props.match.params.page);
-		props.match.params.page = parseInt(props.match.params.page) + 1;
-		console.log('pageIncrease pageNume after: ', props.match.params.page);
-	};
-
-	const pageDecrease = () => {
-		console.log('pageIncrease fired');
-		console.log('pageIncrease pageNume before: ', props.match.params.page);
-		props.match.params.page = parseInt(props.match.params.page) - 1;
-		console.log('pageIncrease pageNume after: ', props.match.params.page);
-	};
-
 	if (charactersState.loading) {
 		return (
 			<div>
@@ -178,15 +243,24 @@ const CharacterList = (props) => {
 			</div>
 		);
 	} else {
+		let url = `/characters/page/${pagenum + 1}`;
 		return (
 			<div>
-				<Link to={`/characters/page/${parseInt(props.match.params.page) - 1}`}>
-					<Button onChange={pageDecrease}>Previous</Button>
+				{/* <SearchCharacters searchValue={searchValue} /> */}
+				{previousButton()}
+
+				<Link
+					className={classes.button}
+					to={url}
+					onClick={() => {
+						setCharactersState({
+							loading: true,
+						});
+					}}
+				>
+					<Button variant="contained">Next</Button>
 				</Link>
 
-				<Link to={`/characters/page/${parseInt(props.match.params.page) + 1}`}>
-					<Button onChange={pageIncrease}>Next</Button>
-				</Link>
 				<br />
 				<Grid container className={classes.grid} spacing={5}>
 					{card}

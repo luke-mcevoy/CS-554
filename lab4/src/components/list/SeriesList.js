@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import noImage from '../../img/download.jpeg';
-import ReactPaginate from 'react-paginate';
 import axios from 'axios';
 import {
 	Card,
@@ -45,18 +44,39 @@ const useStyles = makeStyles({
 });
 
 const SeriesList = (props) => {
+	if (!props.match.params.pagenum) {
+		props.match.params.pagenum = 0;
+	}
+
 	const seriesURL = 'https://gateway.marvel.com:443/v1/public/series';
 	const regex = /(<([^>]+)>)/gi;
+
 	const [seriesState, setSeriesState] = useState({
 		series: undefined,
 		loading: true,
 	});
 
-	if (!props.match.params.page) {
-		props.match.params.page = 0;
-	}
+	const [seriesSearchTerm, setSeriesSearchTerm] = useState('');
+	const [pagenum, setPagenum] = useState(0);
 
-	const [seriesPageNum, setSeriesPageNum] = useState(props.match.params.page);
+	const previousButton = () => {
+		if (pagenum !== 0) {
+			let url = `/series/page/${pagenum - 1}`;
+			return (
+				<Link
+					className={classes.button}
+					to={url}
+					onClick={() => {
+						setSeriesState({
+							loading: true,
+						});
+					}}
+				>
+					<Button variant="contained">Previous</Button>
+				</Link>
+			);
+		}
+	};
 
 	const classes = useStyles();
 	let card = null;
@@ -77,24 +97,39 @@ const SeriesList = (props) => {
 	useEffect(() => {
 		async function fetchData() {
 			try {
+				const limit = 20;
+				const offset = limit * parseInt(props.match.params.pagenum) + 1;
 				const md5 = require('blueimp-md5');
 				const publickey = '3c595077cf2e884efee1655fdbbd3e56';
 				const privatekey = 'f030b6590489ed73c2de64024dec779077d67597';
 				const ts = new Date().getTime();
 				const stringToHash = ts + privatekey + publickey;
 				const hash = md5(stringToHash);
-				const baseUrl =
-					'https://gateway.marvel.com:443/v1/public/series?limit=10&offset=20';
+				const baseUrl = 'https://gateway.marvel.com:443/v1/public/series';
 				const url =
-					baseUrl + '&ts=' + ts + '&apikey=' + publickey + '&hash=' + hash;
+					baseUrl +
+					'?limit=' +
+					limit +
+					'&offset=' +
+					offset +
+					'&ts=' +
+					ts +
+					'&apikey=' +
+					publickey +
+					'&hash=' +
+					hash;
 				const { data } = await axios.get(url);
-				setSeriesState({ series: data.data.results, loading: false });
+				setPagenum(parseInt(props.match.params.pagenum));
+				setSeriesState({
+					series: data.data.results,
+					loading: false,
+				});
 			} catch (e) {
 				console.log(e);
 			}
 		}
 		fetchData();
-	}, [seriesPageNum, props.match.params.page]);
+	}, [props.match.params.pagenum]);
 
 	const buildCard = (series) => {
 		return (
@@ -150,14 +185,21 @@ const SeriesList = (props) => {
 			</div>
 		);
 	} else {
+		let url = `/series/page/${pagenum + 1}`;
 		return (
 			<div>
-				<Link to={`/series/page/${parseInt(props.match.params.page) - 1}`}>
-					<Button>Previous</Button>
-				</Link>
+				{previousButton()}
 
-				<Link to={`/series/page/${parseInt(props.match.params.page) + 1}`}>
-					<Button>Next</Button>
+				<Link
+					className={classes.button}
+					to={url}
+					onClick={() => {
+						setSeriesState({
+							loading: true,
+						});
+					}}
+				>
+					<Button variant="contained">Next</Button>
 				</Link>
 				<br />
 				<Grid container className={classes.grid} spacing={5}>

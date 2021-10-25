@@ -24,9 +24,9 @@ const App = () => {
 			<Route exact path="/series" component={SeriesList} />
 			<Route exact path="/characters/page/:pagenum" component={CharacterList} />
 			<Route exact path="/characters/:id" component={Character} />
-			<Route exact path="/comics/page/:page" component={ComicList} />
+			<Route exact path="/comics/page/:pagenum" component={ComicList} />
 			<Route exact path="/comics/:id" component={Comic} />
-			<Route exact path="/series/page/:page" component={SeriesList} />
+			<Route exact path="/series/page/:pagenum" component={SeriesList} />
 			<Route exact path="/series/:id" component={Series} />
 		</Router>
 	);

@@ -104,6 +104,15 @@ const Comic = (props) => {
 									<dd>N/A</dd>
 								)}
 							</dt>
+							<dt className="title">
+								{comicState.comic &&
+								comicState.comic.creators &&
+								comicState.comic.creators > 0 ? (
+									<dd>{comicState.comic.creators.items}</dd>
+								) : (
+									<dd>N/A</dd>
+								)}
+							</dt>
 						</p>
 					</dl>
 				</CardContent>

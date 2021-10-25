@@ -44,6 +44,10 @@ const useStyles = makeStyles({
 });
 
 const ComicList = (props) => {
+	if (!props.match.params.pagenum) {
+		props.match.params.pagenum = 0;
+	}
+
 	const comicListURL = 'https://gateway.marvel.com:443/v1/public/comics';
 	const regex = /(<([^>]+)>)/gi;
 
@@ -56,7 +60,26 @@ const ComicList = (props) => {
 		props.match.params.page = 0;
 	}
 
-	const [comicPageNum, setComicPageNum] = useState(props.match.params.page);
+	const [pagenum, setPagenum] = useState(0);
+
+	const previousButton = () => {
+		if (pagenum !== 0) {
+			let url = `/comics/page/${pagenum - 1}`;
+			return (
+				<Link
+					className={classes.button}
+					to={url}
+					onClick={() => {
+						setComicsState({
+							loading: true,
+						});
+					}}
+				>
+					<Button variant="contained">Previous</Button>
+				</Link>
+			);
+		}
+	};
 
 	const classes = useStyles();
 	let card = null;
@@ -78,24 +101,39 @@ const ComicList = (props) => {
 	useEffect(() => {
 		async function fetchData() {
 			try {
+				const limit = 20;
+				const offset = limit * parseInt(props.match.params.pagenum) + 1;
 				const md5 = require('blueimp-md5');
 				const publickey = '3c595077cf2e884efee1655fdbbd3e56';
 				const privatekey = 'f030b6590489ed73c2de64024dec779077d67597';
 				const ts = new Date().getTime();
 				const stringToHash = ts + privatekey + publickey;
 				const hash = md5(stringToHash);
-				const baseUrl =
-					'https://gateway.marvel.com:443/v1/public/characters?limit=10&offset=20';
+				const baseUrl = 'https://gateway.marvel.com:443/v1/public/comics';
 				const url =
-					baseUrl + '&ts=' + ts + '&apikey=' + publickey + '&hash=' + hash;
-				const { data: comics } = await axios.get(url);
-				setComicsState({ data: comics.data.results, loading: false });
+					baseUrl +
+					'?limit=' +
+					limit +
+					'&offset=' +
+					offset +
+					'&ts=' +
+					ts +
+					'&apikey=' +
+					publickey +
+					'&hash=' +
+					hash;
+				const { data } = await axios.get(url);
+				setPagenum(parseInt(props.match.params.pagenum));
+				setComicsState({
+					comics: data.data.results,
+					loading: false,
+				});
 			} catch (e) {
 				console.log(e);
 			}
 		}
 		fetchData();
-	}, [comicPageNum, props.match.params.page]);
+	}, [props.match.params.pagenum]);
 
 	const buildCard = (comic) => {
 		return (
@@ -152,16 +190,23 @@ const ComicList = (props) => {
 			</div>
 		);
 	} else {
-		console.log('loading is false');
+		let url = `/comics/page/${pagenum + 1}`;
 		return (
 			<div>
-				<Link to={`/comics/page/${parseInt(props.match.params.page) - 1}`}>
-					<Button>Previous</Button>
+				{previousButton()}
+
+				<Link
+					className={classes.button}
+					to={url}
+					onClick={() => {
+						setComicsState({
+							loading: true,
+						});
+					}}
+				>
+					<Button variant="contained">Next</Button>
 				</Link>
 
-				<Link to={`/comics/page/${parseInt(props.match.params.page) + 1}`}>
-					<Button>Next</Button>
-				</Link>
 				<br />
 				<Grid container className={classes.grid} spacing={5}>
 					{card}
