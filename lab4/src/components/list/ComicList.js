@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import noImage from '../../img/download.jpeg';
+import SearchMarvel from '../search/SearchMarvel';
 import axios from 'axios';
 import '../../App.css';
 import {
@@ -56,10 +57,7 @@ const ComicList = (props) => {
 		loading: true,
 	});
 
-	if (!props.match.params.page) {
-		props.match.params.page = 0;
-	}
-
+	const [comicSearchTerm, setComicSearchTerm] = useState('');
 	const [pagenum, setPagenum] = useState(0);
 
 	const previousButton = () => {
@@ -97,6 +95,41 @@ const ComicList = (props) => {
 		}
 		fetchData();
 	}, []);
+
+	useEffect(() => {
+		async function fetchData() {
+			try {
+				const md5 = require('blueimp-md5');
+				const publickey = '3c595077cf2e884efee1655fdbbd3e56';
+				const privatekey = 'f030b6590489ed73c2de64024dec779077d67597';
+				const ts = new Date().getTime();
+				const stringToHash = ts + privatekey + publickey;
+				const hash = md5(stringToHash);
+				const baseUrl =
+					'https://gateway.marvel.com:443/v1/public/comics?titleStartsWith=' +
+					comicSearchTerm;
+				const url =
+					baseUrl + '&ts=' + ts + '&apikey=' + publickey + '&hash=' + hash;
+				console.log('url for searchTerm of the character list is ', url);
+				const { data } = await axios.get(url);
+				console.log(
+					'characters data from searchTerm fetch:',
+					data.data.results,
+				);
+				setComicsState({ comics: data.data.results, loading: false });
+			} catch (e) {
+				console.log(e);
+			}
+		}
+		if (comicSearchTerm) {
+			fetchData();
+		}
+	}, [comicSearchTerm]);
+
+	const searchValue = async (value) => {
+		console.log('searchValue is', value);
+		setComicSearchTerm(value);
+	};
 
 	useEffect(() => {
 		async function fetchData() {
@@ -193,6 +226,7 @@ const ComicList = (props) => {
 		let url = `/comics/page/${pagenum + 1}`;
 		return (
 			<div>
+				<SearchMarvel searchValue={searchValue} />
 				{previousButton()}
 
 				<Link

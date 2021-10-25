@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import noImage from '../../img/download.jpeg';
-import SearchCharacters from '../search/SearchCharacters';
 import axios from 'axios';
 import {
 	Card,
@@ -15,6 +14,7 @@ import {
 } from '@material-ui/core';
 import '../../App.css';
 import URLGenerator from '../URLGenerator';
+import SearchMarvel from '../search/SearchMarvel';
 const useStyles = makeStyles({
 	card: {
 		maxWidth: 550,
@@ -168,10 +168,10 @@ const CharacterList = (props) => {
 		}
 	}, [characterSearchTerm]);
 
-	// const searchValue = async (value) => {
-	// 	console.log('searchValue is', value);
-	// 	setCharacterSearchTerm(value);
-	// };
+	const searchValue = async (value) => {
+		console.log('searchValue is', value);
+		setCharacterSearchTerm(value);
+	};
 
 	const buildCard = (character) => {
 		return (
@@ -246,7 +246,7 @@ const CharacterList = (props) => {
 		let url = `/characters/page/${pagenum + 1}`;
 		return (
 			<div>
-				{/* <SearchCharacters searchValue={searchValue} /> */}
+				<SearchMarvel searchValue={searchValue} />
 				{previousButton()}
 
 				<Link

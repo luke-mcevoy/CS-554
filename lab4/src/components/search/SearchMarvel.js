@@ -1,12 +1,12 @@
 import React from 'react';
 
-const SearchCharacters = (props) => {
-	const handleChanges = (e) => {
-		props.searchValue(e.targets.value);
+const SearchMarvel = (props) => {
+	const handleChange = (e) => {
+		props.searchValue(e.target.value);
 	};
 	return (
 		<form
-			method="POST"
+			method="POST "
 			onSubmit={(e) => {
 				e.preventDefault();
 			}}
@@ -14,16 +14,16 @@ const SearchCharacters = (props) => {
 			className="center"
 		>
 			<label>
-				<span>Search Characters:</span>
+				<span>Search: </span>
 				<input
 					autoComplete="off"
 					type="text"
 					name="searchTerm"
-					onChange={handleChanges}
+					onChange={handleChange}
 				/>
 			</label>
 		</form>
 	);
 };
 
-export default SearchCharacters;
+export default SearchMarvel;
