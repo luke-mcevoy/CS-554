@@ -55,6 +55,7 @@ const Comic = (props) => {
 					comicsURL + '/' + props.match.params.id,
 				);
 				const { data } = await axios.get(currComicURL);
+				console.log('comic fetch data: ', data.data.results[0]);
 				setComicState({ comic: data.data.results[0], loading: false });
 			} catch (e) {
 				console.log(e);
@@ -74,7 +75,7 @@ const Comic = (props) => {
 			<Card className={classes.card} variant="outlined">
 				<CardHeader
 					className={classes.titleHead}
-					title={comicState.comic.name}
+					title={comicState.comic.title}
 				/>
 				<CardMedia
 					className={classes.media}
@@ -98,19 +99,17 @@ const Comic = (props) => {
 					<dl>
 						<p>
 							<dt className="title">
-								{comicState.comic && comicState.comic.id ? (
-									<dd>{comicState.comic.id}</dd>
+								{comicState.comic && comicState.comic.description ? (
+									<dd>Description: {comicState.comic.description}</dd>
 								) : (
-									<dd>N/A</dd>
+									<dd>Description: None</dd>
 								)}
 							</dt>
 							<dt className="title">
-								{comicState.comic &&
-								comicState.comic.creators &&
-								comicState.comic.creators > 0 ? (
-									<dd>{comicState.comic.creators.items}</dd>
+								{comicState.comic && comicState.comic.pageCount ? (
+									<dd>Page Count: {comicState.comic.pageCount}</dd>
 								) : (
-									<dd>N/A</dd>
+									<dd>Page Count: None</dd>
 								)}
 							</dt>
 						</p>

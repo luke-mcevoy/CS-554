@@ -156,7 +156,7 @@ const SeriesList = (props) => {
 									variant="h6"
 									component="h3"
 								>
-									{series.name}
+									{series.title}
 								</Typography>
 								<Typography variant="body2" color="textSecondary" component="p">
 									{series.description

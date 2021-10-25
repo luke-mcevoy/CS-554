@@ -55,6 +55,7 @@ const Series = (props) => {
 					seriesURL + '/' + props.match.params.id,
 				);
 				const { data } = await axios.get(currSeriesURL);
+				console.log('Series fetch: ', data.data.results[0]);
 				setSeriesState({ series: data.data.results[0], loading: false });
 			} catch (e) {
 				console.log(e);
@@ -83,7 +84,7 @@ const Series = (props) => {
 			<Card className={classes.card} variant="outlined">
 				<CardHeader
 					className={classes.titleHead}
-					title={seriesState.series.name}
+					title={seriesState.series.title}
 				/>
 				<CardMedia
 					className={classes.media}
@@ -107,10 +108,24 @@ const Series = (props) => {
 					<dl>
 						<p>
 							<dt className="title">
-								{seriesState.series && seriesState.series.id ? (
-									<dd>{seriesState.series.id}</dd>
+								{seriesState.series && seriesState.series.startYear ? (
+									<dd>Start Year: {seriesState.series.startYear}</dd>
 								) : (
-									<dd>N/A</dd>
+									<dd>Start Year: None</dd>
+								)}
+							</dt>
+							<dt className="title">
+								{seriesState.series && seriesState.series.endYear ? (
+									<dd>End Year: {seriesState.series.endYear}</dd>
+								) : (
+									<dd>End Year: None</dd>
+								)}
+							</dt>
+							<dt className="title">
+								{seriesState.series && seriesState.series.rating ? (
+									<dd>Rating: {seriesState.series.raing}</dd>
+								) : (
+									<dd>Rating: None</dd>
 								)}
 							</dt>
 						</p>
