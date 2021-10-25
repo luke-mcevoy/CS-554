@@ -5,7 +5,7 @@ import '../App.css';
 const Landing = () => {
 	return (
 		<div class="center">
-			<h2>This is the Landing Page</h2>
+			<h1>This is the Landing Page</h1>
 			<br />
 			<p>
 				Welcome to the world's greatest comics API! The Marvel Comics API is a

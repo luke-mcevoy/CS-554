@@ -196,7 +196,7 @@ const CharacterList = (props) => {
 									className={classes.titleHead}
 									gutterBottom
 									variant="h6"
-									component="h3"
+									component="h1"
 								>
 									{character.name}
 								</Typography>

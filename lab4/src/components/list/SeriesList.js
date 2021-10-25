@@ -154,7 +154,7 @@ const SeriesList = (props) => {
 									className={classes.titleHead}
 									gutterBottom
 									variant="h6"
-									component="h3"
+									component="h1"
 								>
 									{series.title}
 								</Typography>
