@@ -3,11 +3,9 @@ const mongoCollections = require('./config/mongoCollections');
 const uuid = require('uuid');
 const axios = require('axios');
 const redis = require('redis');
-const flat = require('flat');
-const unflatten = flat.unflatten;
-const client = redis.createClient();
+const asyncRedis = require('async-redis');
+const client = asyncRedis.createClient();
 const bluebird = require('bluebird');
-const { buildClientSchema } = require('graphql');
 
 bluebird.promisifyAll(redis.RedisClient.prototype);
 bluebird.promisifyAll(redis.Multi.prototype);
@@ -80,31 +78,15 @@ const resolvers = {
 		/* binnedImages: [ImagePost] */
 		binnedImages: async () => {
 			console.log('binnedImages');
-			let keys = [];
-			await client.keysAsync('*', async function (err, key) {
-				if (err) throw err;
-				let getKeyCache = await client.hgetallAsync(key);
-				console.log(getKeyCache);
-			});
-			console.log('keys from redis', keys);
-
-			/*
-			assets = [];
-			await client.KEYS('*', async function (err, keys) {
-				for (key of keys) {
-					await client.HGETALL(key, async function (err, binnedImage) {
-						console.log(binnedImage);
-						assets.push(binnedImage);
-						console.log('assets at the key', assets);
-					});
-					console.log('assets in the loop', assets);
-				}
-				console.log(assets);
-			});
-			console.log('done');
-			*/
-			// I am geting the binnedImage but can not return an array of them
-			// This is an await problem
+			let keys = await client.KEYS('*');
+			let values = [];
+			for (key of keys) {
+				value = await client.HGETALL(key);
+				value.binned = value.binned === 'true';
+				value.userPosted = value.userPosted === 'true';
+				values.push(value);
+			}
+			return values;
 		},
 		/* userPostedImages: [ImagePost] */
 		userPostedImages: async () => {
@@ -126,11 +108,11 @@ const resolvers = {
 				userPosted: true,
 				binned: false,
 			};
+			console.log('newImagePost in uploadImage: ', newImagePost);
 			try {
-				let flatImagePost = flat(newImagePost);
-				let redisImagePost = await client.hmsetAsync(
+				let redisImagePost = await client.hmset(
 					`${newImagePost._id}`,
-					flatImagePost,
+					newImagePost,
 				);
 				if (!redisImagePost) throw `Could not cache image ${newImagePost._id}`;
 			} catch (e) {
@@ -148,22 +130,22 @@ const resolvers = {
             2. If an image post that came from Unsplash an was unbinned (binned set to false), remove from cache.
             */
 
-			doesImagePostExists = await client.existsAsync(args._id);
+			doesImagePostExists = await client.exists(args._id);
 			let imagePost = {};
 			if (doesImagePostExists) {
-				imagePost = await client.hgetallAsync(args._id);
+				imagePost = await client.hgetall(args._id);
 			}
 
 			if (args._id) imagePost._id = args._id;
 			if (args.url) imagePost.url = args.url;
 			if (args.posterName) imagePost.posterName = args.posterName;
 			if (args.description) imagePost.description = args.description;
-			if (args.userPosted) imagePost.userPosted = args.userPosted;
-			if (args.binned) imagePost.binned = args.binned;
+			if (args.userPosted) imagePost.userPosted = true; // TODO
+			if (args.binned) imagePost.binned = true; // TODO
 
 			if (args.binned && !doesImagePostExists) {
 				try {
-					let redisImagePost = await client.hmsetAsync(
+					let redisImagePost = await client.hmset(
 						`${imagePost._id}`,
 						imagePost,
 					);
@@ -175,8 +157,8 @@ const resolvers = {
 
 			if (!args.binned && doesImagePostExists) {
 				try {
-					let toBeDeletedImagePost = await client.hgetallAsync(args._id);
-					let deleteImagePost = await client.delAsync(args._id);
+					let toBeDeletedImagePost = await client.hgetall(args._id);
+					let deleteImagePost = await client.del(args._id);
 					if (!deleteImagePost) throw `Did not delete image ${args._id}`;
 					return toBeDeletedImagePost;
 				} catch (e) {
@@ -187,14 +169,15 @@ const resolvers = {
 		// DONE
 		deleteImage: async (_, args) => {
 			/* Delete a user-posted Image Post from cache */
-			doesImagePostExists = await client.existsAsync(args._id);
-			console.log('image does exist');
+			doesImagePostExists = await client.exists(args._id);
 			if (doesImagePostExists) {
-				let imagePost = await client.hgetallAsync(args._id);
-				let deleteImagePost = await client.delAsync(args._id);
+				console.log('image does exist');
+				let imagePost = await client.hgetall(args._id);
+				let deleteImagePost = await client.del(args._id);
 				if (!deleteImagePost) throw `Did not delete image ${args._id}`;
 				return imagePost;
 			} else {
+				console.log('image does NOT exist');
 				return [];
 			}
 		},

@@ -9,15 +9,24 @@ const ImageList = (props) => {
 	if (props.removeFromBin) console.log('I can remove from bin');
 	if (props.getMorePictures) console.log('I can get more pictures');
 	if (props.uploadAPost) console.log('I can upload a post');
-	// const { loading, error, data } = useQuery(queries.GET_UNSPLASHIMAGES, {
-	// 	fetchPolicy: 'cache-and-network',
-	// });
-	const { loading, error, data } = useQuery(queries.GET_BINNEDIMAGES, {
-		fetchPolicy: 'cache-and-network',
-	});
+
+	console.log('props loading: ', props.loading);
+	console.log('props error: ', props.error);
+	console.log('props data: ', props.data);
+
+	let data = props.data;
+	let loading = props.loading;
+	let error = props.error;
 
 	if (data) {
-		const { unsplashImages } = data;
+		let images;
+		if (props.binnedQuery && data) {
+			const { binnedImages } = data;
+			images = binnedImages;
+		} else {
+			const { unsplashImages } = data;
+			images = unsplashImages;
+		}
 
 		return (
 			<div>
@@ -33,14 +42,14 @@ const ImageList = (props) => {
 				) : (
 					''
 				)}
-				{unsplashImages &&
-					unsplashImages.map((unsplashImage) => {
+				{images &&
+					images.map((image) => {
 						return (
-							<div className="card" key={unsplashImage._id}>
+							<div className="card" key={image._id}>
 								<div className="card-body">
-									<h1 className="card-title">{unsplashImage.posterName}</h1>
-									<img src={unsplashImage.url} alt="new" />
-									<h3>Description: {unsplashImage.description}</h3>
+									<h1 className="card-title">{image.posterName}</h1>
+									<img src={image.url} alt="new" />
+									<h3>Description: {image.description}</h3>
 									{props.addToBin ? (
 										<button className="button">add to bin</button>
 									) : (

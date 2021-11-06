@@ -4,9 +4,18 @@ import ImageList from './ImageList';
 import queries from '../queries';
 
 function Home() {
+	const { loading, error, data } = useQuery(queries.GET_UNSPLASHIMAGES, {
+		fetchPolicy: 'cache-and-network',
+	});
 	return (
 		<div>
-			<ImageList getMorePictures={true} addToBin={true} />
+			<ImageList
+				loading={loading}
+				error={error}
+				data={data}
+				getMorePictures={true}
+				addToBin={true}
+			/>
 		</div>
 	);
 }
