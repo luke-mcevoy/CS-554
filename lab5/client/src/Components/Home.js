@@ -1,12 +1,12 @@
 import { useQuery } from '@apollo/client';
-import React, { useState } from 'react';
+import React from 'react';
 import ImageList from './ImageList';
 import queries from '../queries';
 
 function Home() {
 	return (
 		<div>
-			<ImageList />
+			<ImageList getMorePictures={true} addToBin={true} />
 		</div>
 	);
 }

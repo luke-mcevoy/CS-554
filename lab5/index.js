@@ -7,6 +7,7 @@ const flat = require('flat');
 const unflatten = flat.unflatten;
 const client = redis.createClient();
 const bluebird = require('bluebird');
+const { buildClientSchema } = require('graphql');
 
 bluebird.promisifyAll(redis.RedisClient.prototype);
 bluebird.promisifyAll(redis.Multi.prototype);
@@ -60,7 +61,6 @@ const resolvers = {
 			try {
 				let { data } = await axios.get(unsplashURL + accessKey);
 				for (img of data) {
-					// console.log(img);
 					let newImagePost = {
 						_id: img.id,
 						url: img.urls.small,
@@ -79,13 +79,32 @@ const resolvers = {
 		},
 		/* binnedImages: [ImagePost] */
 		binnedImages: async () => {
-			let cacheBinnedImages = await client.getAsync('binnedImages');
-			if (cacheBinnedImages) {
-				console.log('Binned Images found');
-				return cacheBinnedImages;
-			} else {
-				return null;
-			}
+			console.log('binnedImages');
+			let keys = [];
+			await client.keysAsync('*', async function (err, key) {
+				if (err) throw err;
+				let getKeyCache = await client.hgetallAsync(key);
+				console.log(getKeyCache);
+			});
+			console.log('keys from redis', keys);
+
+			/*
+			assets = [];
+			await client.KEYS('*', async function (err, keys) {
+				for (key of keys) {
+					await client.HGETALL(key, async function (err, binnedImage) {
+						console.log(binnedImage);
+						assets.push(binnedImage);
+						console.log('assets at the key', assets);
+					});
+					console.log('assets in the loop', assets);
+				}
+				console.log(assets);
+			});
+			console.log('done');
+			*/
+			// I am geting the binnedImage but can not return an array of them
+			// This is an await problem
 		},
 		/* userPostedImages: [ImagePost] */
 		userPostedImages: async () => {
@@ -95,20 +114,10 @@ const resolvers = {
 			return userPostedImage;
 		},
 	},
-	ImagePost: {},
+	// ImagePost: {},
 	Mutation: {
-		// uploadImage(url!, description, posterName) -> ImagePost
+		// DONE
 		uploadImage: async (_, args) => {
-			/*
-            Create an ImagePost and save in Redis.
-            Default values:
-                binned: false
-                userPosted: true
-                id: a uuid
-            */
-
-			// fetch using Unsplash API
-			const imagePosts = await imagePostCollection();
 			const newImagePost = {
 				_id: uuid.v4(),
 				url: args.url,
@@ -117,8 +126,6 @@ const resolvers = {
 				userPosted: true,
 				binned: false,
 			};
-			console.log(newImagePost);
-			await imagePosts.insertOne(newImagePost);
 			try {
 				let flatImagePost = flat(newImagePost);
 				let redisImagePost = await client.hmsetAsync(
@@ -126,13 +133,6 @@ const resolvers = {
 					flatImagePost,
 				);
 				if (!redisImagePost) throw `Could not cache image ${newImagePost._id}`;
-				console.log('Stringify, flatten, hmsetAsync: ', redisImagePost);
-
-				const flatRedis = await client.hgetallAsync(newImagePost._id);
-				console.log('flatRedis: ', flatRedis);
-
-				const remade = unflatten(flatRedis);
-				console.log('remade: ', remade);
 			} catch (e) {
 				console.log('redis failed');
 				console.log(e);
@@ -140,27 +140,60 @@ const resolvers = {
 
 			return newImagePost;
 		},
+		// DONE
 		updateImage: async (_, args) => {
 			/* 
             1. If the image was not previously in the cache, and the user bins it, then add
             it to the cache using data from React state. 
             2. If an image post that came from Unsplash an was unbinned (binned set to false), remove from cache.
             */
+
+			doesImagePostExists = await client.existsAsync(args._id);
+			let imagePost = {};
+			if (doesImagePostExists) {
+				imagePost = await client.hgetallAsync(args._id);
+			}
+
+			if (args._id) imagePost._id = args._id;
+			if (args.url) imagePost.url = args.url;
+			if (args.posterName) imagePost.posterName = args.posterName;
+			if (args.description) imagePost.description = args.description;
+			if (args.userPosted) imagePost.userPosted = args.userPosted;
+			if (args.binned) imagePost.binned = args.binned;
+
+			if (args.binned && !doesImagePostExists) {
+				try {
+					let redisImagePost = await client.hmsetAsync(
+						`${imagePost._id}`,
+						imagePost,
+					);
+					if (!redisImagePost) throw `Could not cache image ${imagePost._id}`;
+				} catch (e) {
+					console.log(e);
+				}
+			}
+
+			if (!args.binned && doesImagePostExists) {
+				try {
+					let toBeDeletedImagePost = await client.hgetallAsync(args._id);
+					let deleteImagePost = await client.delAsync(args._id);
+					if (!deleteImagePost) throw `Did not delete image ${args._id}`;
+					return toBeDeletedImagePost;
+				} catch (e) {
+					console.log(e);
+				}
+			}
 		},
+		// DONE
 		deleteImage: async (_, args) => {
 			/* Delete a user-posted Image Post from cache */
 			doesImagePostExists = await client.existsAsync(args._id);
+			console.log('image does exist');
 			if (doesImagePostExists) {
 				let imagePost = await client.hgetallAsync(args._id);
 				let deleteImagePost = await client.delAsync(args._id);
-				console.log(
-					`deleteImagePost ${args._id}: `,
-					imagePost,
-					unflatten(imagePost),
-					typeof imagePost,
-					typeof unflatten(imagePost),
-				);
-				return unflatten(imagePost);
+				if (!deleteImagePost) throw `Did not delete image ${args._id}`;
+				return imagePost;
 			} else {
 				return [];
 			}

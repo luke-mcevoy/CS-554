@@ -26,9 +26,23 @@ const GET_USERPOSTEDIMAGES = gql`
 	}
 `;
 
+const GET_BINNEDIMAGES = gql`
+	query {
+		binnedImages {
+			_id
+			url
+			posterName
+			description
+			userPosted
+			binned
+		}
+	}
+`;
+
 let exported = {
 	GET_UNSPLASHIMAGES,
 	GET_USERPOSTEDIMAGES,
+	GET_BINNEDIMAGES,
 };
 
 export default exported;

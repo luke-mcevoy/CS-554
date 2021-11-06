@@ -1,8 +1,12 @@
 import React from 'react';
-// import './App.css';
+import ImageList from './ImageList';
 
 function MyBin() {
-	return <div></div>;
+	return (
+		<div>
+			<ImageList binnedQuery={true} removeFromBin={true} />
+		</div>
+	);
 }
 
 export default MyBin;
