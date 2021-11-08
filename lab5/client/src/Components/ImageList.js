@@ -4,6 +4,9 @@ import React, { useState } from 'react';
 import queries from '../queries';
 
 const ImageList = (props) => {
+	const [pageNum, setPagenum] = useState(0);
+	console.log('Data in ImageList: ', props.data);
+
 	if (props.deleteFromBin) console.log('I can delete from bin');
 	if (props.addToBin) console.log('I can add to bin');
 	if (props.removeFromBin) console.log('I can remove from bin');
@@ -23,6 +26,9 @@ const ImageList = (props) => {
 		if (props.binnedQuery && data) {
 			const { binnedImages } = data;
 			images = binnedImages;
+		} else if (data.userPostedImages) {
+			const { userPostedImages } = data;
+			images = data.userPostedImages;
 		} else {
 			const { unsplashImages } = data;
 			images = unsplashImages;

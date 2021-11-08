@@ -1,69 +1,91 @@
+import { useMutation } from '@apollo/client';
+import queries from '../queries';
 import React from 'react';
 
 function NewPosts() {
-	const handleNewPost = async (event) => {
-		event.preventDefault();
-		let { description } = event.target.elements;
-		try {
-			console.log('here is the description: ', description);
-			console.log('this will be the new post query/mutation');
-		} catch (error) {
-			alert(error);
-		}
-	};
-	const submitNewImage = async (event) => {
-		event.preventDefault();
-		let description = document.getElementById('description').value;
-		let imageURL = document.getElementById('imageurl').value;
-		let authorName = document.getElementById('authorname').value;
-		console.log(description, imageURL, authorName);
-	};
+	const [addUserPostedImage] = useMutation(queries.UPLOAD_USERPOSTEDIMAGE, {
+		update(cache, { data: { addUserPostedImage } }) {
+			const queryData = cache.readQuery({
+				query: queries.GET_USERPOSTEDIMAGES,
+			});
+			let userPostedImages = [];
+			console.log(cache);
+			console.log(addUserPostedImage);
+			if (!addUserPostedImage) {
+				addUserPostedImage = [];
+			}
+			if (queryData !== null) {
+				userPostedImages = queryData.userPostedImages;
+			}
+			console.log(addUserPostedImage);
+			cache.writeQuery({
+				query: queries.GET_USERPOSTEDIMAGES,
+				data: {
+					userPostedImages: userPostedImages.concat([addUserPostedImage]),
+				},
+			});
+			console.log(cache);
+		},
+	});
+
+	let description;
+	let url;
+	let posterName;
 	return (
 		<div>
 			<h1>Create a New Post</h1>
-			<form onSubmit={submitNewImage}>
+			<form
+				onSubmit={(e) => {
+					e.preventDefault();
+					addUserPostedImage({
+						variables: {
+							description: description.value,
+							url: url.value,
+							posterName: posterName.value,
+						},
+					});
+					console.log(addUserPostedImage);
+					description.value = '';
+					url.value = '';
+					posterName.value = '';
+					alert('User Image Added');
+				}}
+			>
 				<div className="form-group">
 					<label>
 						Description:
+						<br />
 						<input
-							className="form-control"
-							name="description"
-							id="description"
-							type="description"
-							placeholder="Description"
-							required
+							ref={(node) => {
+								description = node;
+							}}
+							autoFocus={true}
 						/>
 					</label>
 				</div>
+				<br />
 				<div className="form-group">
 					<label>
 						Image URL:
 						<input
-							className="form-control"
-							name="imageurl"
-							id="imageurl"
-							type="imageurl"
-							placeholder="Image Url"
+							ref={(node) => {
+								url = node;
+							}}
 							required
 						/>
 					</label>
 				</div>
 				<div className="form-group">
 					<label>
-						Author Name:
+						Poster Name:
 						<input
-							className="form-control"
-							name="authorname"
-							id="authorname"
-							type="authorname"
-							placeholder="Author Name"
-							required
-						></input>
+							ref={(node) => {
+								posterName = node;
+							}}
+						/>
 					</label>
 				</div>
-				<button type="submit" onClick={submitNewImage}>
-					Submit
-				</button>
+				<button type="submit">Submit</button>
 			</form>
 		</div>
 	);

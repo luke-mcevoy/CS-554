@@ -1,5 +1,4 @@
 const { ApolloServer, gql } = require('apollo-server');
-const mongoCollections = require('./config/mongoCollections');
 const uuid = require('uuid');
 const axios = require('axios');
 const redis = require('redis');
@@ -11,8 +10,6 @@ bluebird.promisifyAll(redis.RedisClient.prototype);
 bluebird.promisifyAll(redis.Multi.prototype);
 
 client.flushall();
-
-const imagePostCollection = mongoCollections.ImagePosts;
 
 const typeDefs = gql`
 	type Query {
@@ -84,16 +81,22 @@ const resolvers = {
 				value = await client.HGETALL(key);
 				value.binned = value.binned === 'true';
 				value.userPosted = value.userPosted === 'true';
-				values.push(value);
+				if (value.binned) values.push(value);
 			}
 			return values;
 		},
 		/* userPostedImages: [ImagePost] */
 		userPostedImages: async () => {
-			const userPostedImages = await imagePostCollection();
-			const userPostedImage = await userPostedImages.find({}).toArray();
-			console.log(userPostedImage);
-			return userPostedImage;
+			console.log('userPostedImages');
+			let keys = await client.KEYS('*');
+			let values = [];
+			for (key of keys) {
+				value = await client.HGETALL(key);
+				value.binned = value.binned === 'true';
+				value.userPosted = value.userPosted === 'true';
+				values.push(value);
+			}
+			return values;
 		},
 	},
 	// ImagePost: {},
@@ -110,10 +113,7 @@ const resolvers = {
 			};
 			console.log('newImagePost in uploadImage: ', newImagePost);
 			try {
-				let redisImagePost = await client.hmset(
-					`${newImagePost._id}`,
-					newImagePost,
-				);
+				let redisImagePost = await client.hmset(newImagePost._id, newImagePost);
 				if (!redisImagePost) throw `Could not cache image ${newImagePost._id}`;
 			} catch (e) {
 				console.log('redis failed');
@@ -133,7 +133,7 @@ const resolvers = {
 			doesImagePostExists = await client.exists(args._id);
 			let imagePost = {};
 			if (doesImagePostExists) {
-				imagePost = await client.hgetall(args._id);
+				imagePost = await client.HGETALL(args._id);
 			}
 
 			if (args._id) imagePost._id = args._id;
@@ -157,7 +157,7 @@ const resolvers = {
 
 			if (!args.binned && doesImagePostExists) {
 				try {
-					let toBeDeletedImagePost = await client.hgetall(args._id);
+					let toBeDeletedImagePost = await client.HGETALL(args._id);
 					let deleteImagePost = await client.del(args._id);
 					if (!deleteImagePost) throw `Did not delete image ${args._id}`;
 					return toBeDeletedImagePost;
@@ -172,7 +172,7 @@ const resolvers = {
 			doesImagePostExists = await client.exists(args._id);
 			if (doesImagePostExists) {
 				console.log('image does exist');
-				let imagePost = await client.hgetall(args._id);
+				let imagePost = await client.HGETALL(args._id);
 				let deleteImagePost = await client.del(args._id);
 				if (!deleteImagePost) throw `Did not delete image ${args._id}`;
 				return imagePost;

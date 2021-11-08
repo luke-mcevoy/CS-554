@@ -36,10 +36,10 @@ function App() {
 							<NavLink className="navlink" to="/my-posts">
 								my-posts
 							</NavLink>
-							<br></br>
+							{/* <br></br>
 							<NavLink className="navlink" to="/new-posts">
 								new-post
-							</NavLink>
+							</NavLink> */}
 						</nav>
 					</header>
 					<Route exact path="/" component={Home} />
