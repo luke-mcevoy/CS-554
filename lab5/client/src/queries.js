@@ -75,27 +75,32 @@ const DELETE_BINNEDIMAGE = gql`
 	}
 `;
 
-// const UPDATE_IMAGE = gql`
-// 	mutation updateImage(
-// 		$_id: String!
-// 		$url: String
-// 		$posterName: String
-// 		$description: String
-// 		$userPosted: Boolean
-// 		$binned: Boolean
-// 	) {
-// 		updateImage(
-// 			_id: $id
-// 			url: $url
-// 			binned: $binned
-// 			posterName: $posterName
-// 			description: $description
-// 			userPosted: $userPosted
-// 		) {
-// 			_id
-// 		}
-// 	}
-// `;
+const UPDATE_IMAGE = gql`
+	mutation updateImage(
+		$_id: String!
+		$url: String
+		$posterName: String
+		$description: String
+		$userPosted: Boolean
+		$binned: Boolean
+	) {
+		updateImage(
+			_id: $_id
+			url: $url
+			binned: $binned
+			posterName: $posterName
+			description: $description
+			userPosted: $userPosted
+		) {
+			_id
+			binned
+			posterName
+			userPosted
+			description
+			url
+		}
+	}
+`;
 
 let exported = {
 	GET_UNSPLASHIMAGES,
@@ -103,7 +108,7 @@ let exported = {
 	GET_BINNEDIMAGES,
 	UPLOAD_USERPOSTEDIMAGE,
 	DELETE_BINNEDIMAGE,
-	// UPDATE_IMAGE,
+	UPDATE_IMAGE,
 };
 
 export default exported;

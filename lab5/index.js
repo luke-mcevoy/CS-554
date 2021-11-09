@@ -52,7 +52,7 @@ const resolvers = {
 			accessKey = 'sO_rjOMfqCYiAhWbtGHZBkyjNXQzxjTd2UNRKSptNm8';
 			unsplashURL = `https://api.unsplash.com/photos?page=${args.pageNum}&client_id=`;
 			imagePosts = [];
-			console.log('args.pageNum: ', args.pageNum);
+			// console.log('args.pageNum: ', args.pageNum);
 			try {
 				let { data } = await axios.get(unsplashURL + accessKey);
 				for (img of data) {
@@ -67,14 +67,14 @@ const resolvers = {
 					imagePosts.push(newImagePost);
 				}
 			} catch (e) {
-				console.log('could not get the unsplash api data');
+				// console.log('could not get the unsplash api data');
 				console.log(e);
 			}
 			return imagePosts;
 		},
 		/* binnedImages: [ImagePost] */
 		binnedImages: async () => {
-			console.log('binnedImages');
+			// console.log('binnedImages');
 			let keys = await client.KEYS('*');
 			let values = [];
 			for (key of keys) {
@@ -87,14 +87,14 @@ const resolvers = {
 		},
 		/* userPostedImages: [ImagePost] */
 		userPostedImages: async () => {
-			console.log('userPostedImages');
+			// console.log('userPostedImages');
 			let keys = await client.KEYS('*');
 			let values = [];
 			for (key of keys) {
 				value = await client.HGETALL(key);
 				value.binned = value.binned === 'true';
 				value.userPosted = value.userPosted === 'true';
-				values.push(value);
+				if (value.userPosted) values.push(value);
 			}
 			return values;
 		},
@@ -111,12 +111,12 @@ const resolvers = {
 				userPosted: true,
 				binned: false,
 			};
-			console.log('newImagePost in uploadImage: ', newImagePost);
+			// console.log('newImagePost in uploadImage: ', newImagePost);
 			try {
 				let redisImagePost = await client.hmset(newImagePost._id, newImagePost);
 				if (!redisImagePost) throw `Could not cache image ${newImagePost._id}`;
 			} catch (e) {
-				console.log('redis failed');
+				// console.log('redis failed');
 				console.log(e);
 			}
 
@@ -133,37 +133,53 @@ const resolvers = {
 			doesImagePostExists = await client.exists(args._id);
 			let imagePost = {};
 			if (doesImagePostExists) {
+				// console.log('image does exist');
 				imagePost = await client.HGETALL(args._id);
 			}
+			// console.log('imagePost', imagePost);
+
+			console.log('args: ', args);
 
 			if (args._id) imagePost._id = args._id;
 			if (args.url) imagePost.url = args.url;
 			if (args.posterName) imagePost.posterName = args.posterName;
 			if (args.description) imagePost.description = args.description;
-			if (args.userPosted) imagePost.userPosted = true; // TODO
-			if (args.binned) imagePost.binned = true; // TODO
 
-			if (args.binned && !doesImagePostExists) {
-				try {
-					let redisImagePost = await client.hmset(
-						`${imagePost._id}`,
-						imagePost,
-					);
-					if (!redisImagePost) throw `Could not cache image ${imagePost._id}`;
-				} catch (e) {
-					console.log(e);
-				}
-			}
+			console.log('args.userPosted: ', args.userPosted);
 
-			if (!args.binned && doesImagePostExists) {
-				try {
-					let toBeDeletedImagePost = await client.HGETALL(args._id);
-					let deleteImagePost = await client.del(args._id);
-					if (!deleteImagePost) throw `Did not delete image ${args._id}`;
-					return toBeDeletedImagePost;
-				} catch (e) {
-					console.log(e);
-				}
+			args.userPosted
+				? (imagePost.userPosted = true)
+				: (imagePost.userPosted = false);
+
+			console.log('imagePost.userPosted: ', imagePost.userPosted);
+
+			args.binned ? (imagePost.binned = true) : (imagePost.binned = false);
+
+			console.log('args.binned: ', args.binned);
+
+			imagePost.userPosted =
+				imagePost.userPosted == 'true' || imagePost.userPosted == true
+					? true
+					: false;
+
+			console.log('imagePost.userPosted: ', imagePost.userPosted);
+
+			imagePost.binned =
+				imagePost.binned == 'true' || imagePost.binned == true ? true : false;
+
+			console.log('imagePost.binned: ', imagePost.binned);
+
+			// console.log('imagePost', imagePost);
+			try {
+				let redisImagePostSet = await client.HMSET(imagePost._id, imagePost);
+				let redisImagePostGet = await client.HGETALL(imagePost._id);
+				if (!redisImagePostSet) throw `Could not cache image ${imagePost._id}`;
+				if (redisImagePostGet)
+					console.log('image post get: ', redisImagePostGet);
+				return imagePost;
+			} catch (e) {
+				console.log(e);
+				return [];
 			}
 		},
 		// DONE
@@ -171,13 +187,13 @@ const resolvers = {
 			/* Delete a user-posted Image Post from cache */
 			doesImagePostExists = await client.exists(args._id);
 			if (doesImagePostExists) {
-				console.log('image does exist');
+				// console.log('image does exist');
 				let imagePost = await client.HGETALL(args._id);
 				let deleteImagePost = await client.del(args._id);
 				if (!deleteImagePost) throw `Did not delete image ${args._id}`;
 				return imagePost;
 			} else {
-				console.log('image does NOT exist');
+				// console.log('image does NOT exist');
 				return [];
 			}
 		},

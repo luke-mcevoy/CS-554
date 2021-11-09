@@ -1,21 +1,25 @@
-import { useQuery } from '@apollo/client';
+import { useQuery, useMutation } from '@apollo/client';
 import { Link } from 'react-router-dom';
 import React, { useState } from 'react';
 import queries from '../queries';
 
 const ImageList = (props) => {
-	const [pageNum, setPagenum] = useState(0);
-	console.log('Data in ImageList: ', props.data);
+	const [updateBin] = useMutation(queries.UPDATE_IMAGE);
+	const [uploadImage] = useMutation(queries.UPLOAD_USERPOSTEDIMAGE);
+	const [deleteFromBin] = useMutation(queries.DELETE_BINNEDIMAGE);
+	// const images = [];
 
-	if (props.deleteFromBin) console.log('I can delete from bin');
-	if (props.addToBin) console.log('I can add to bin');
-	if (props.removeFromBin) console.log('I can remove from bin');
-	if (props.getMorePictures) console.log('I can get more pictures');
-	if (props.uploadAPost) console.log('I can upload a post');
+	// console.log('Data in ImageList: ', props.data);
 
-	console.log('props loading: ', props.loading);
-	console.log('props error: ', props.error);
-	console.log('props data: ', props.data);
+	// if (props.deleteFromBin) console.log('I can delete from bin');
+	// if (props.addToBin) console.log('I can add to bin');
+	// if (props.removeFromBin) console.log('I can remove from bin');
+	// if (props.getMorePictures) console.log('I can get more pictures');
+	// if (props.uploadAPost) console.log('I can upload a post');
+
+	// console.log('props loading: ', props.loading);
+	// console.log('props error: ', props.error);
+	// console.log('props data: ', props.data);
 
 	let data = props.data;
 	let loading = props.loading;
@@ -23,15 +27,12 @@ const ImageList = (props) => {
 
 	if (data) {
 		let images;
-		if (props.binnedQuery && data) {
-			const { binnedImages } = data;
-			images = binnedImages;
+		if (data.binnedImages) {
+			images = data.binnedImages;
 		} else if (data.userPostedImages) {
-			const { userPostedImages } = data;
 			images = data.userPostedImages;
 		} else {
-			const { unsplashImages } = data;
-			images = unsplashImages;
+			images = data.unsplashImages;
 		}
 
 		return (
@@ -55,19 +56,80 @@ const ImageList = (props) => {
 								<div className="card-body">
 									<h1 className="card-title">{image.posterName}</h1>
 									<img src={image.url} alt="new" />
-									<h3>Description: {image.description}</h3>
-									{props.addToBin ? (
-										<button className="button">add to bin</button>
+									<h2>Description: {image.description}</h2>
+									{props.addToBin && !image.binned ? (
+										<button
+											className="button"
+											onClick={async (e) => {
+												e.preventDefault();
+
+												let uploadReturn = await uploadImage({
+													variables: {
+														url: image.url,
+													},
+												});
+
+												// console.log(
+												// 	'Upload Return: ',
+												// 	uploadReturn.data.uploadImage._id,
+												// 	typeof uploadReturn.data.uploadImage._id,
+												// );
+
+												let updateReturn = await updateBin({
+													variables: {
+														_id: uploadReturn.data.uploadImage._id,
+														userPosted: false,
+														binned: true,
+													},
+												});
+
+												// console.log('Update Return', updateReturn);
+											}}
+										>
+											add to bin
+										</button>
 									) : (
 										''
 									)}
-									{props.removeFromBin ? (
-										<button className="button">remove from bin</button>
+									{props.removeFromBin && image.binned ? (
+										<button
+											className="button"
+											onClick={async (e) => {
+												e.preventDefault();
+
+												let updateReturn = await updateBin({
+													variables: {
+														_id: image._id,
+														binned: false,
+													},
+												});
+
+												// console.log('updateReturn: ', updateReturn);
+											}}
+										>
+											remove from bin
+										</button>
 									) : (
 										''
 									)}
-									{props.deleteFromBin ? (
-										<button className="button">delete from bin</button>
+									{image.userPosted ? (
+										<button
+											className="button"
+											onClick={async (e) => {
+												e.preventDefault();
+
+												let deleted = await deleteFromBin({
+													variables: {
+														_id: image._id,
+													},
+												});
+
+												// console.log('deleted: ', deleted);
+												window.location.reload();
+											}}
+										>
+											delete image
+										</button>
 									) : (
 										''
 									)}
